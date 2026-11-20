@@ -1527,6 +1527,128 @@ Eric S. Tellez · Legistlan
 <p>Es chica: caben la búsqueda exacta y muchos experimentos en una laptop.</p>
 </div>
 </div></div>
+</section>
+<section id="cuánto-pesan-los-vectores" class="slide level2">
+<h2>Cuánto pesan los vectores</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><strong>En disco</strong> (Float16, 1,024 dimensiones, MB)</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Colección</th>
+<th style="text-align: right;">Unidades</th>
+<th style="text-align: right;">Fragmentos</th>
+<th style="text-align: right;">Contextos</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Ejecutorias</td>
+<td style="text-align: right;">342,668</td>
+<td style="text-align: right;">669</td>
+<td style="text-align: right;">23</td>
+</tr>
+<tr class="even">
+<td>Artículos científicos</td>
+<td style="text-align: right;">178,801</td>
+<td style="text-align: right;">349</td>
+<td style="text-align: right;">349</td>
+</tr>
+<tr class="odd">
+<td>Comunicados</td>
+<td style="text-align: right;">88,510</td>
+<td style="text-align: right;">173</td>
+<td style="text-align: right;">113</td>
+</tr>
+<tr class="even">
+<td>Votos</td>
+<td style="text-align: right;">41,905</td>
+<td style="text-align: right;">82</td>
+<td style="text-align: right;">14</td>
+</tr>
+<tr class="odd">
+<td>Tesis</td>
+<td style="text-align: right;">23,001</td>
+<td style="text-align: right;">45</td>
+<td style="text-align: right;">25</td>
+</tr>
+<tr class="even">
+<td>Normas</td>
+<td style="text-align: right;">14,837</td>
+<td style="text-align: right;">29</td>
+<td style="text-align: right;">24</td>
+</tr>
+<tr class="odd">
+<td>Acuerdos</td>
+<td style="text-align: right;">7,048</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td>Benchmark de normas</td>
+<td style="text-align: right;">3,592</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">7</td>
+</tr>
+<tr class="odd">
+<td><strong>Total</strong></td>
+<td style="text-align: right;"><strong>700,362</strong></td>
+<td style="text-align: right;"><strong>1,368</strong></td>
+<td style="text-align: right;"><strong>555</strong></td>
+</tr>
+</tbody>
+</table>
+</div><div class="column" style="width:50%;">
+<p><strong>En memoria</strong>: un vector mezclado por unidad</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Cada coordenada en</th>
+<th style="text-align: right;">Bytes por vector</th>
+<th style="text-align: right;">Las 700,362 unidades</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Float32 (como se busca hoy)</td>
+<td style="text-align: right;">4,096</td>
+<td style="text-align: right;">2.67 GB</td>
+</tr>
+<tr class="even">
+<td>Float16 (como se guarda)</td>
+<td style="text-align: right;">2,048</td>
+<td style="text-align: right;">1.34 GB</td>
+</tr>
+<tr class="odd">
+<td>8 bits</td>
+<td style="text-align: right;">1,024</td>
+<td style="text-align: right;">0.67 GB</td>
+</tr>
+<tr class="even">
+<td>4 bits</td>
+<td style="text-align: right;">512</td>
+<td style="text-align: right;">0.33 GB</td>
+</tr>
+<tr class="odd">
+<td>2 bits</td>
+<td style="text-align: right;">256</td>
+<td style="text-align: right;">0.17 GB</td>
+</tr>
+<tr class="even">
+<td>1 bit</td>
+<td style="text-align: right;">128</td>
+<td style="text-align: right;">0.08 GB</td>
+</tr>
+</tbody>
+</table>
+<div class="caja">
+<p>¿Hasta dónde se puede bajar sin perder calidad? Se mide en la sección de resultados.</p>
+</div>
+</div></div>
+<div class="nota">
+<p>Aparte: 4 MB de descripciones por artículo en el benchmark y 1.7 GB de índices léxicos (BM25) para las ocho colecciones.</p>
+</div>
 </section></section>
 <section>
 <section id="cómo-se-trabaja" class="title-slide slide level1 center" data-background-color="#0d366b">
@@ -2045,6 +2167,185 @@ Eric S. Tellez · Legistlan
 </ul>
 <div class="nota">
 <p>PLAN 2.23. Diagnóstico: recuperación del índice contra la exacta con consultas reales y con vectores del propio índice; si sólo falla con las reales, es fuera de distribución.</p>
+</div>
+</section>
+<section id="cuantizar-los-vectores-8-bits-no-cuestan-nada-medible" class="slide level2">
+<h2>Cuantizar los vectores: 8 bits no cuestan nada medible</h2>
+<p>Misma evaluación, vectores con menos bits y <strong>búsqueda exhaustiva</strong> (sin índice aproximado: lo que se pierde es sólo de la cuantización). Recall@5, mezcla <span class="math inline">\(a\)</span> = 0.2, <span class="math inline">\(b\)</span> = 0.4.</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 34%">
+<col style="width: 11%">
+<col style="width: 9%">
+<col style="width: 14%">
+<col style="width: 10%">
+<col style="width: 11%">
+<col style="width: 11%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variante (SimilaritySearch.jl)</th>
+<th style="text-align: right;">Bytes por vector</th>
+<th style="text-align: right;">Ahorro</th>
+<th style="text-align: right;">Coincide con la exacta</th>
+<th style="text-align: right;">Art. lego</th>
+<th style="text-align: right;">Com. texto</th>
+<th style="text-align: right;">Tesis texto</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Exacta, Float32 (control)</td>
+<td style="text-align: right;">4,096</td>
+<td style="text-align: right;">1×</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.938</td>
+<td style="text-align: right;">0.261</td>
+<td style="text-align: right;">0.468</td>
+</tr>
+<tr class="even">
+<td>Rotación QR + SQgu8 (rango global)</td>
+<td style="text-align: right;">1,024</td>
+<td style="text-align: right;">4×</td>
+<td style="text-align: right;"><strong>0.996</strong></td>
+<td style="text-align: right;"><strong>0.938</strong></td>
+<td style="text-align: right;"><strong>0.261</strong></td>
+<td style="text-align: right;"><strong>0.468</strong></td>
+</tr>
+<tr class="odd">
+<td>Rotación QR + SQu8 (rango por vector)</td>
+<td style="text-align: right;">1,032</td>
+<td style="text-align: right;">4×</td>
+<td style="text-align: right;">0.997</td>
+<td style="text-align: right;">0.937</td>
+<td style="text-align: right;">0.259</td>
+<td style="text-align: right;">0.468</td>
+</tr>
+<tr class="even">
+<td>SQgu8 sin rotar</td>
+<td style="text-align: right;">1,024</td>
+<td style="text-align: right;">4×</td>
+<td style="text-align: right;">0.991</td>
+<td style="text-align: right;">0.938</td>
+<td style="text-align: right;">0.258</td>
+<td style="text-align: right;">0.468</td>
+</tr>
+<tr class="odd">
+<td>Rotación QR + SQgu4</td>
+<td style="text-align: right;">512</td>
+<td style="text-align: right;">8×</td>
+<td style="text-align: right;">0.954</td>
+<td style="text-align: right;">0.936</td>
+<td style="text-align: right;">0.253</td>
+<td style="text-align: right;">0.461</td>
+</tr>
+<tr class="even">
+<td>Rotación QR + SQgu2</td>
+<td style="text-align: right;">256</td>
+<td style="text-align: right;">16×</td>
+<td style="text-align: right;">0.865</td>
+<td style="text-align: right;">0.934</td>
+<td style="text-align: right;">0.255</td>
+<td style="text-align: right;">0.411</td>
+</tr>
+<tr class="odd">
+<td>Rotación QR + bitsketch (1 bit, Hamming)</td>
+<td style="text-align: right;">128</td>
+<td style="text-align: right;">32×</td>
+<td style="text-align: right;">0.659</td>
+<td style="text-align: right;">0.908</td>
+<td style="text-align: right;">0.214</td>
+<td style="text-align: right;">0.397</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Coincide con la exacta</strong>: fracción de las 10 primeras unidades de la búsqueda exacta que la variante también devuelve.</li>
+<li>Con 4 y 2 bits el Recall@5 casi no se mueve, pero la lista sí cambia. <strong>Un bit por coordenada sí cuesta</strong>: solo no alcanza.</li>
+</ul>
+<div class="nota">
+<p>PLAN 2.30. Benchmark de normas: 3,592 unidades, 40,611 consultas. Float16 da exactamente lo mismo que Float32.</p>
+</div>
+</section>
+<section id="aguanta-un-rango-global-las-consultas-fuera-de-distribución-sí" class="slide level2">
+<h2>¿Aguanta un rango global las consultas fuera de distribución? Sí</h2>
+<p>SQgu8 usa <strong>un solo rango para toda la base</strong>, estimado con los datos. Las mezclas dejan las consultas fuera de distribución: ¿se rompe?</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 45%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Peso del contexto <span class="math inline">\(a\)</span></th>
+<th style="text-align: right;">0</th>
+<th style="text-align: right;">0.2</th>
+<th style="text-align: right;">0.4</th>
+<th style="text-align: right;">0.6</th>
+<th style="text-align: right;">0.8</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Amontonamiento de los datos (norma de su vector medio)</td>
+<td style="text-align: right;">0.55</td>
+<td style="text-align: right;">0.68</td>
+<td style="text-align: right;">0.71</td>
+<td style="text-align: right;">0.77</td>
+<td style="text-align: right;">0.80</td>
+</tr>
+<tr class="even">
+<td>Coordenadas de <strong>datos</strong> fuera del rango</td>
+<td style="text-align: right;">0.015 %</td>
+<td style="text-align: right;">0.010 %</td>
+<td style="text-align: right;">0.013 %</td>
+<td style="text-align: right;">0.014 %</td>
+<td style="text-align: right;">0.013 %</td>
+</tr>
+<tr class="odd">
+<td>Coordenadas de <strong>consultas</strong> fuera del rango</td>
+<td style="text-align: right;">0.015 %</td>
+<td style="text-align: right;">0.014 %</td>
+<td style="text-align: right;">0.017 %</td>
+<td style="text-align: right;">0.021 %</td>
+<td style="text-align: right;">0.024 %</td>
+</tr>
+<tr class="even">
+<td>QR + SQgu8: coincide con la exacta</td>
+<td style="text-align: right;">0.996</td>
+<td style="text-align: right;">0.996</td>
+<td style="text-align: right;">0.995</td>
+<td style="text-align: right;">0.993</td>
+<td style="text-align: right;">0.987</td>
+</tr>
+<tr class="odd">
+<td>QR + SQu8 (rango por vector)</td>
+<td style="text-align: right;">0.997</td>
+<td style="text-align: right;">0.997</td>
+<td style="text-align: right;">0.996</td>
+<td style="text-align: right;">0.994</td>
+<td style="text-align: right;">0.989</td>
+</tr>
+<tr class="even">
+<td>QR + bitsketch</td>
+<td style="text-align: right;">0.651</td>
+<td style="text-align: right;">0.659</td>
+<td style="text-align: right;">0.611</td>
+<td style="text-align: right;">0.526</td>
+<td style="text-align: right;">0.416</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Las consultas están fuera de distribución en <strong>dirección</strong>, no en <strong>escala</strong>: tras la rotación, sus coordenadas tienen la misma dispersión que las de los datos, y el rango de los datos les queda.</li>
+<li>El rango por vector no gana nada. Lo que baja con <span class="math inline">\(a\)</span> es <strong>todo por igual</strong>: los datos se amontonan y el error de cuantización pesa más. A 8 bits es poco; a 1 bit, mucho.</li>
+</ul>
+<div class="nota">
+<p>PLAN 2.30. Cuantizar también la consulta con el rango global da lo mismo (0.995). Falta repetirlo en una colección grande, con tiempos.</p>
 </div>
 </section>
 <section id="describir-cada-artículo-en-lenguaje-cotidiano-sirve" class="slide level2">
@@ -2766,41 +3067,47 @@ Eric S. Tellez · Legistlan
 </tr>
 <tr class="odd">
 <td>✔</td>
+<td>Vectores a 8 bits (rotación QR + SQgu8)</td>
+<td>4× menos memoria, mismo Recall@5</td>
+<td>candidato; falta una colección grande</td>
+</tr>
+<tr class="even">
+<td>✔</td>
 <td>Precedente y uso agrupado por artículo</td>
 <td>comunicados 0.28 → 0.77</td>
 <td>por integrar</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>✘</td>
 <td>Fusión RRF pareja con BM25</td>
 <td>lego 0.83 → 0.66</td>
 <td>se reporta como línea base</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>✘</td>
 <td>Nombre del instrumento dentro del texto de BM25</td>
 <td>sin cambio en la fusión</td>
 <td>descartado</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>✘</td>
 <td>Fusión tardía de tres índices</td>
 <td>0.93 → 0.86</td>
 <td>descartada tal cual</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>✘</td>
 <td>Unidades por fracción; segunda etapa por capítulos</td>
 <td>+0.02 a +0.06, con daño</td>
 <td>descartadas</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>✘</td>
 <td>Casos de ejemplo inventados</td>
 <td>0.26 → 0.20</td>
 <td>descartados</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>≈</td>
 <td>Caso tipo generado desde comunicados reales</td>
 <td>0.73, bajo el promedio de vectores (0.75)</td>

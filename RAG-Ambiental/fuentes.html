@@ -137,6 +137,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#de-dónde-vienen-los-datos" id="toc-de-dónde-vienen-los-datos" class="nav-link active" data-scroll-target="#de-dónde-vienen-los-datos">De dónde vienen los datos</a></li>
   <li><a href="#los-términos-con-qué-se-seleccionó-el-corpus" id="toc-los-términos-con-qué-se-seleccionó-el-corpus" class="nav-link" data-scroll-target="#los-términos-con-qué-se-seleccionó-el-corpus">Los términos: con qué se seleccionó el corpus</a></li>
   <li><a href="#la-colección-que-se-evalúa-benchmark-rag-de-normas-ambientales" id="toc-la-colección-que-se-evalúa-benchmark-rag-de-normas-ambientales" class="nav-link" data-scroll-target="#la-colección-que-se-evalúa-benchmark-rag-de-normas-ambientales">La colección que se evalúa: Benchmark RAG de Normas Ambientales</a></li>
+  <li><a href="#cuánto-pesan-los-vectores" id="toc-cuánto-pesan-los-vectores" class="nav-link" data-scroll-target="#cuánto-pesan-los-vectores">Cuánto pesan los vectores</a></li>
   <li><a href="#cosecha" id="toc-cosecha" class="nav-link" data-scroll-target="#cosecha">Cosecha</a></li>
   </ul>
 </nav>
@@ -486,6 +487,160 @@ ul.task-list li input[type="checkbox"] {
 <li>Se fija la <strong>vigencia</strong>: los reglamentos abrogados quedan fuera.</li>
 <li>Es una colección chica: caben la búsqueda exacta y muchos experimentos en una laptop.</li>
 </ul>
+</section>
+<section id="cuánto-pesan-los-vectores" class="level2">
+<h2 class="anchored" data-anchor-id="cuánto-pesan-los-vectores">Cuánto pesan los vectores</h2>
+<p>Cada unidad tiene un vector de 1,024 dimensiones (Qwen3-Embedding-0.6B), guardado en Float16 (2,048 bytes). Aparte van un vector de contexto por documento y, en el benchmark de normas, uno de descripción por artículo. Tamaños en MB, tal como están en disco:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 16%">
+<col style="width: 14%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Colección</th>
+<th style="text-align: right;">Unidades</th>
+<th style="text-align: right;">Fragmentos</th>
+<th style="text-align: right;">Contextos</th>
+<th style="text-align: right;">Descripciones</th>
+<th style="text-align: right;">Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Tesis</td>
+<td style="text-align: right;">23,001</td>
+<td style="text-align: right;">45</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">70</td>
+</tr>
+<tr class="even">
+<td>Ejecutorias</td>
+<td style="text-align: right;">342,668</td>
+<td style="text-align: right;">669</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">692</td>
+</tr>
+<tr class="odd">
+<td>Votos</td>
+<td style="text-align: right;">41,905</td>
+<td style="text-align: right;">82</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">96</td>
+</tr>
+<tr class="even">
+<td>Acuerdos</td>
+<td style="text-align: right;">7,048</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">15</td>
+</tr>
+<tr class="odd">
+<td>Normas</td>
+<td style="text-align: right;">14,837</td>
+<td style="text-align: right;">29</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">53</td>
+</tr>
+<tr class="even">
+<td>Comunicados</td>
+<td style="text-align: right;">88,510</td>
+<td style="text-align: right;">173</td>
+<td style="text-align: right;">113</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">285</td>
+</tr>
+<tr class="odd">
+<td>Artículos científicos</td>
+<td style="text-align: right;">178,801</td>
+<td style="text-align: right;">349</td>
+<td style="text-align: right;">349</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">698</td>
+</tr>
+<tr class="even">
+<td>Benchmark de normas</td>
+<td style="text-align: right;">3,592</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">18</td>
+</tr>
+<tr class="odd">
+<td><strong>Total</strong></td>
+<td style="text-align: right;"><strong>700,362</strong></td>
+<td style="text-align: right;"><strong>1,368</strong></td>
+<td style="text-align: right;"><strong>555</strong></td>
+<td style="text-align: right;"><strong>4</strong></td>
+<td style="text-align: right;"><strong>1,927</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Para buscar no se usan esas piezas sueltas sino <strong>un vector mezclado por unidad</strong>. Lo que ocupa ese índice en memoria depende de cómo se guarde cada coordenada:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 26%">
+<col style="width: 26%">
+<col style="width: 26%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Representación del vector mezclado</th>
+<th style="text-align: right;">Bytes por vector</th>
+<th style="text-align: right;">Las 700,362 unidades</th>
+<th style="text-align: right;">Contra Float32</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Float32 (como se busca hoy)</td>
+<td style="text-align: right;">4,096</td>
+<td style="text-align: right;">2.67 GB</td>
+<td style="text-align: right;">1×</td>
+</tr>
+<tr class="even">
+<td>Float16 (como se guarda)</td>
+<td style="text-align: right;">2,048</td>
+<td style="text-align: right;">1.34 GB</td>
+<td style="text-align: right;">2×</td>
+</tr>
+<tr class="odd">
+<td>8 bits por coordenada (SQgu8 o SQu8)</td>
+<td style="text-align: right;">1,024</td>
+<td style="text-align: right;">0.67 GB</td>
+<td style="text-align: right;">4×</td>
+</tr>
+<tr class="even">
+<td>4 bits</td>
+<td style="text-align: right;">512</td>
+<td style="text-align: right;">0.33 GB</td>
+<td style="text-align: right;">8×</td>
+</tr>
+<tr class="odd">
+<td>2 bits</td>
+<td style="text-align: right;">256</td>
+<td style="text-align: right;">0.17 GB</td>
+<td style="text-align: right;">16×</td>
+</tr>
+<tr class="even">
+<td>1 bit (bitsketch)</td>
+<td style="text-align: right;">128</td>
+<td style="text-align: right;">0.08 GB</td>
+<td style="text-align: right;">32×</td>
+</tr>
+</tbody>
+</table>
+<p>Con 8 bits por coordenada la búsqueda devuelve prácticamente lo mismo que con Float32; el detalle está en <a href="./resultados.html#cuantizacion">Resultados</a>. A esto hay que sumar los índices léxicos (BM25), que pesan 1.7 GB en disco para las ocho colecciones.</p>
 </section>
 <section id="cosecha" class="level2">
 <h2 class="anchored" data-anchor-id="cosecha">Cosecha</h2>
