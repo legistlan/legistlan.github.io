@@ -1,0 +1,436 @@
+[
+  {
+    "objectID": "metodo.html",
+    "href": "metodo.html",
+    "title": "Cómo se hizo",
+    "section": "",
+    "text": "Trazabilidad. Un documento de plan guarda cada decisión con fecha y cifras; una bitácora guarda qué se hizo, cuánto tardó y qué falló. Todo se regenera desde los datos crudos con guiones.\nCada colección es sui géneris. Nada se hereda de una colección a otra sin medirlo.\nSupuesto de error del modelo. La salida de un modelo generativo se usa entera, como texto para encontrar. Nunca se le extraen campos ni datos puntuales, y nada río abajo depende de su formato.\nDos cuentas en cada medición. Índice aproximado y búsqueda exacta, lado a lado. Se elige entre lo que el índice sirve; la exacta es el control."
+  },
+  {
+    "objectID": "metodo.html#reglas-de-trabajo",
+    "href": "metodo.html#reglas-de-trabajo",
+    "title": "Cómo se hizo",
+    "section": "",
+    "text": "Trazabilidad. Un documento de plan guarda cada decisión con fecha y cifras; una bitácora guarda qué se hizo, cuánto tardó y qué falló. Todo se regenera desde los datos crudos con guiones.\nCada colección es sui géneris. Nada se hereda de una colección a otra sin medirlo.\nSupuesto de error del modelo. La salida de un modelo generativo se usa entera, como texto para encontrar. Nunca se le extraen campos ni datos puntuales, y nada río abajo depende de su formato.\nDos cuentas en cada medición. Índice aproximado y búsqueda exacta, lado a lado. Se elige entre lo que el índice sirve; la exacta es el control."
+  },
+  {
+    "objectID": "metodo.html#la-tubería",
+    "href": "metodo.html#la-tubería",
+    "title": "Cómo se hizo",
+    "section": "La tubería",
+    "text": "La tubería\n\n\n\n\n\n\n\nG\n\n\nD\n\nCorpus\n(JSONL por colección)\n\n\n\nU\n\nUnidades\nartículo o fragmento\n\n\n\nD-&gt;U\n\n\n\n\n\nG\n\nTexto generado por recurso\nQwen3-4B, vLLM en Colab\n\n\n\nD-&gt;G\n\n\n\n\n\nE\n\nVectores\nQwen3-Embedding-0.6B\n1,024 dimensiones\n\n\n\nU-&gt;E\n\n\n\n\n\nI2\n\nÍndice léxico\nBM25, perfil de español\n\n\n\nU-&gt;I2\n\n\n\n\n\nG-&gt;E\n\n\n\n\n\nM\n\nMezcla por unidad\ncontexto + descripción\n+ fragmento\n\n\n\nE-&gt;M\n\n\n\n\n\nI1\n\nÍndice denso\nSearchGraph\n\n\n\nM-&gt;I1\n\n\n\n\n\nX\n\nBúsqueda exacta\n(control)\n\n\n\nM-&gt;X\n\n\n\n\n\nR\n\nFusión y paso de\nunidad a artículo\n\n\n\nI1-&gt;R\n\n\n\n\n\nI2-&gt;R\n\n\n\n\n\nQ\n\nConsulta\n\n\n\nQ-&gt;I2\n\n\n\n\n\nEQ\n\nVector de consulta\nOpenVINO, GPU integrada\n\n\n\nQ-&gt;EQ\n\n\n\n\n\nEQ-&gt;I1\n\n\n\n\n\nEQ-&gt;X\n\n\n\n\n\n\n\n\n\n\n\nFragmentación: párrafos consecutivos hasta 2,000 caracteres, sin solape. En lugar de solape, cada fragmento lleva un contexto compartido por todo su documento.\nBúsqueda: SimilaritySearch.jl, TextSearch.jl y SimilaritySearchEngine.jl.\nCómputo: lo masivo (vectores, generación) en Colab con GPU; las consultas y la evaluación, en una laptop.\nModelos de pesos abiertos: Qwen3-Embedding-0.6B para codificar y Qwen3-4B para generar."
+  },
+  {
+    "objectID": "metodo.html#representación-densa-una-mezcla-de-vectores",
+    "href": "metodo.html#representación-densa-una-mezcla-de-vectores",
+    "title": "Cómo se hizo",
+    "section": "Representación densa: una mezcla de vectores",
+    "text": "Representación densa: una mezcla de vectores\nCada unidad \\(u\\) tiene hasta tres vectores normalizados: su texto \\(\\mathbf{f}_u\\), el contexto de su documento \\(\\mathbf{c}_u\\) y la descripción de su artículo \\(\\mathbf{d}_u\\). Se indexa uno solo:\n\\[\n\\mathbf{v}_u \\;=\\; \\frac{a\\,\\mathbf{c}_u + b\\,\\mathbf{d}_u + (1-a-b)\\,\\mathbf{f}_u}{\\lVert a\\,\\mathbf{c}_u + b\\,\\mathbf{d}_u + (1-a-b)\\,\\mathbf{f}_u \\rVert}\n\\qquad 0 \\le a,\\; b,\\; a+b \\le 1\n\\]\n\nContexto (\\(a\\)): un texto generado que dice de qué documento viene la unidad. En normas es uno por instrumento: 18 valores para 3,592 unidades.\nDescripción (\\(b\\)): un texto generado por artículo, en lenguaje cotidiano, con cinco preguntas fijas (qué dice, a qué hechos aplica, a quién obliga, qué autoridad y vía, qué consecuencia).\nLa consulta \\(\\mathbf{q}\\) se codifica sola, con una instrucción, y se ordena por similitud coseno: \\(\\mathrm{sim}(q,u) = \\mathbf{q}^{\\top}\\mathbf{v}_u\\).\nCambiar \\(a\\) o \\(b\\) no pide GPU: es otro índice con los mismos vectores, y se construye en segundos.\n\n\nPor qué mezclar y no concatenar texto. El fragmento se codifica una vez y los pesos se pueden barrer después. El costo: la consulta no lleva la parte compartida, y con pesos altos queda fuera de distribución respecto a lo indexado (ver Resultados)."
+  },
+  {
+    "objectID": "metodo.html#léxico-fusión-y-paso-a-artículo",
+    "href": "metodo.html#léxico-fusión-y-paso-a-artículo",
+    "title": "Cómo se hizo",
+    "section": "Léxico, fusión y paso a artículo",
+    "text": "Léxico, fusión y paso a artículo\nBM25 sobre el texto de cada unidad, como control léxico:\n\\[\n\\mathrm{BM25}(q,u)=\\sum_{t\\in q}\\mathrm{idf}(t)\\,\\frac{\\mathrm{tf}(t,u)\\,(k_1+1)}{\\mathrm{tf}(t,u)+k_1\\left(1-b+b\\,\\frac{|u|}{\\overline{|u|}}\\right)}\n\\]\nFusión por rangos recíprocos (RRF; Cormack, Clarke y Büttcher, SIGIR 2009), con peso por lista:\n\\[\n\\mathrm{RRF}(x)=\\sum_{i} \\frac{w_i}{c+r_i(x)}, \\qquad \\sum_i w_i = 1\n\\]\ndonde \\(r_i(x)\\) es el rango de \\(x\\) en la lista \\(i\\). La línea base es la pareja: \\(w=(0.5,\\,0.5)\\), \\(c=60\\).\nDe unidad a artículo: el artículo toma el puntaje de su mejor unidad, \\(\\mathrm{sim}(q,A)=\\max_{u\\in A}\\mathrm{sim}(q,u)\\), y se quitan los transitorios."
+  },
+  {
+    "objectID": "metodo.html#qué-se-mide",
+    "href": "metodo.html#qué-se-mide",
+    "title": "Cómo se hizo",
+    "section": "Qué se mide",
+    "text": "Qué se mide\nPara una consulta \\(q\\) con artículos de referencia \\(G_q\\) y lista devuelta \\(L_q\\) (se miran 100 artículos):\n\\[\n\\mathrm{R@}k(q)=\\mathbb{1}\\Big[\\min_{g\\in G_q} r_{L_q}(g)\\le k\\Big]\n\\qquad\n\\mathrm{Todo@}k(q)=\\mathbb{1}\\Big[\\max_{g\\in G_q} r_{L_q}(g)\\le k\\Big]\n\\qquad\n\\mathrm{Cob@}k(q)=\\frac{|\\{g\\in G_q : r_{L_q}(g)\\le k\\}|}{|G_q|}\n\\]\n\n\\(\\mathbb{1}[\\cdot]\\) es la función indicadora: vale 1 si la condición se cumple y 0 si no. \\(r_{L_q}(g)\\) es el lugar del artículo \\(g\\) en la lista (1 es el primero).\nR@\\(k\\), Recall@\\(k\\): acierto si al menos uno de los artículos de referencia está entre los \\(k\\) primeros.\nTodo@\\(k\\), paquete completo: acierto sólo si están todos.\nCob@\\(k\\), cobertura: fracción de los artículos de referencia que está entre los \\(k\\) primeros.\n\nSe promedia por recurso (el documento o artículo del que salieron las preguntas) y luego entre recursos, porque las preguntas de un mismo recurso se parecen.\n\nRecall@5 por disposición es la medida principal.\nBrecha de registro: cuánto cambia el resultado entre la pregunta con vocabulario jurídico y la cotidiana.\nControles que siempre van: BM25, búsqueda exacta y, en documentos, el previo de popularidad (los artículos más citados, sin mirar la consulta)."
+  },
+  {
+    "objectID": "metodo.html#el-conjunto-de-prueba-local",
+    "href": "metodo.html#el-conjunto-de-prueba-local",
+    "title": "Cómo se hizo",
+    "section": "El benchmark sintético local",
+    "text": "El benchmark sintético local\nLo que se mide es un benchmark sintético: las referencias salen de citas y las preguntas las escribió un modelo, sin anotación ni validación humana. Sirve para comparar configuraciones entre sí; no sustituye a un conjunto validado por abogados. Tiene dos fuentes de consultas:\n\nCitas reales. Documentos del corpus que citan artículos de la colección. La consulta es el texto sin las oraciones que mencionan normas; la referencia, los artículos citados. Son 1,402 comunicados (1,255 de PROFEPA) y 141 tesis, sobre 256 artículos distintos.\nPreguntas generadas. Sobre cada documento (ciudadano, legal, consecuencia, autoridad) y sobre cada artículo (legal y lego). Una llamada, una pregunta: 49,760 generadas, 39,068 tras la limpieza.\n\nSi la consulta nombra el instrumento (nombre oficial, forma coloquial o sigla) se reporta siempre aparte.\n\nSesgos que hay que decir. La referencia es lo que el documento citó, no todo lo que aplicaba. Casi todo es PROFEPA de 2016 a 2019, y la ruta civil casi no aparece. Las preguntas sobre un artículo se escribieron viendo el artículo, así que las legales son cota superior. Nadie lo validó legalmente."
+  },
+  {
+    "objectID": "metodo.html#vocabulario",
+    "href": "metodo.html#vocabulario",
+    "title": "Cómo se hizo",
+    "section": "Vocabulario",
+    "text": "Vocabulario\n\n\n\n\n\n\n\nTérmino\nQué quiere decir aquí\n\n\n\n\nInstrumento\nuna ley, código, reglamento o tratado\n\n\nDisposición o artículo\nla unidad que se recupera y se califica\n\n\nUnidad\nlo que se indexa: un artículo, o una parte si es largo\n\n\nTransitorio\nartículo de entrada en vigor o de reforma; se indexa, no se califica\n\n\nRecurso\nel documento o artículo del que salieron varias consultas\n\n\nReferencia\nlos artículos que un documento citó; hace de respuesta correcta\n\n\nRegistro legal o lego\npregunta con vocabulario jurídico, o con palabras cotidianas (lego: quien no es abogado)\n\n\nMención\nsi la consulta nombra el instrumento\n\n\nDenso y léxico\nbúsqueda por vectores del codificador y por palabras (BM25)\n\n\nMotor y exacta\níndice aproximado (grafo) y búsqueda exhaustiva de control\n\n\nPrevio\nlos artículos más citados, sin mirar la consulta\n\n\nPrecedente\nvotan las citas de los documentos más parecidos\n\n\nUso\nlos comunicados que citan un artículo, como representación suya\n\n\nFrecuentes, cola y raras\nlos 10 artículos más citados; el resto; los citados 1 o 2 veces"
+  },
+  {
+    "objectID": "resultados.html",
+    "href": "resultados.html",
+    "title": "Resultados",
+    "section": "",
+    "text": "Todas las cifras son Recall@5 por disposición sobre el benchmark sintético local, salvo que se diga otra cosa."
+  },
+  {
+    "objectID": "resultados.html#balance",
+    "href": "resultados.html#balance",
+    "title": "Resultados",
+    "section": "Balance",
+    "text": "Balance\n\n\n\n\n\n\n\n\n\n\nIntento\nEfecto\nEstado\n\n\n\n\n✔\nCodificador actual en lugar de sólo léxico\nlego 0.38 → 0.83\nbase del sistema\n\n\n✔\nDescripción por artículo en lenguaje cotidiano\nlego 0.83 → 0.93; BM25 0.38 → 0.82\ncandidato a índice por defecto\n\n\n✔\nContexto del instrumento, peso moderado\ncon mención 0.77 → 0.90\nse mantiene\n\n\n✔\nFiltro por instrumento cuando se nombra\n0.90 → 0.94\nespera particiones en el motor\n\n\n✔\nPesos por tipo de consulta\n0.934 → 0.954\npor construir el selector\n\n\n✔\nBúsqueda exacta como control\nevitó atribuir 3 a 15 puntos al parámetro equivocado\nregla fija\n\n\n✔\nPrecedente y uso agrupado por artículo\ncomunicados 0.28 → 0.77\npor integrar\n\n\n✘\nFusión RRF pareja con BM25\nlego 0.83 → 0.66\nse reporta como línea base\n\n\n✘\nNombre del instrumento dentro del texto de BM25\nsin cambio en la fusión\ndescartado\n\n\n✘\nFusión tardía de tres índices\n0.93 → 0.86\ndescartada tal cual\n\n\n✘\nUnidades por fracción; segunda etapa por capítulos\n+0.02 a +0.06, con daño\ndescartadas\n\n\n✘\nCasos de ejemplo inventados\n0.26 → 0.20\ndescartados\n\n\n≈\nCaso tipo generado desde comunicados reales\n0.73, bajo el promedio de vectores (0.75)\nútil como texto, no para recuperar"
+  },
+  {
+    "objectID": "resultados.html#el-codificador-actual-cierra-la-brecha-del-registro-lego",
+    "href": "resultados.html#el-codificador-actual-cierra-la-brecha-del-registro-lego",
+    "title": "Resultados",
+    "section": "El codificador actual cierra la brecha del registro lego",
+    "text": "El codificador actual cierra la brecha del registro lego\n\n\n\n\n\n\nBM25 es alto con la pregunta legal y bajo con la de registro lego; el denso lo corrige: 0.83 contra 0.38.\nLa fusión pareja le quita al denso en registro lego (0.66): BM25 mete ruido.\nEn comunicados todo sale bajo. Es la parte difícil y tiene sección propia."
+  },
+  {
+    "objectID": "resultados.html#el-contexto-del-instrumento-depende-de-cómo-se-pregunta",
+    "href": "resultados.html#el-contexto-del-instrumento-depende-de-cómo-se-pregunta",
+    "title": "Resultados",
+    "section": "El contexto del instrumento depende de cómo se pregunta",
+    "text": "El contexto del instrumento depende de cómo se pregunta\n\n\n\n\n\n\nUn barrido sólo con consultas que no nombran la ley concluía «el contexto no sirve». Era un sesgo del conjunto: esas preguntas no pueden beneficiarse del contexto.\nSin contexto, nombrar la ley empeora la búsqueda (0.85 → 0.77): el nombre es ruido porque ningún artículo lo trae."
+  },
+  {
+    "objectID": "resultados.html#si-la-consulta-nombra-la-ley-el-nombre-es-una-restricción",
+    "href": "resultados.html#si-la-consulta-nombra-la-ley-el-nombre-es-una-restricción",
+    "title": "Resultados",
+    "section": "Si la consulta nombra la ley, el nombre es una restricción",
+    "text": "Si la consulta nombra la ley, el nombre es una restricción\n\n\n\n\n\n\n\n\nIntento, para la consulta en registro lego que nombra el instrumento\nResultado\nVeredicto\n\n\n\n\nDenso sin contexto\n0.77\nel nombre estorba\n\n\nDenso con contexto, \\(a\\) = 0.4 a 0.5\n0.90\nsirve\n\n\nBM25 con el nombre del instrumento antepuesto al texto\n0.25 (de 0.23)\nno alcanza: casa igual con todos los artículos de la ley\n\n\nReconocer el instrumento, filtrar por él y buscar con el resto\n0.94\nfunciona, y con filtro el peso del contexto casi no importa\n\n\n\nEl filtro cuesta hoy 4.9 ms por consulta contra 0.36 ms; lo natural son particiones por instrumento en el motor. Es cota superior: las consultas de prueba llevan el nombre oficial, y falta el caso en que la respuesta está en otra norma, donde un filtro duro la esconde."
+  },
+  {
+    "objectID": "resultados.html#dos-cuentas",
+    "href": "resultados.html#dos-cuentas",
+    "title": "Resultados",
+    "section": "Dos cuentas: el índice aproximado también se mide",
+    "text": "Dos cuentas: el índice aproximado también se mide\n\n\n\n\n\n\nLa consulta no lleva el componente compartido. Al pesar más el contexto, los datos se amontonan (similitud al vecino más cercano de 0.80 a 0.99) y se alejan de las consultas (de 0.69 a 0.59).\nEl grafo recupera 0.95 a 0.99 de lo exacto hasta \\(a\\) = 0.4, y 0.50 con \\(a\\) = 0.8.\nLo mismo se vio al construir el grafo semántico de este sitio."
+  },
+  {
+    "objectID": "resultados.html#describir-cada-artículo-en-lenguaje-cotidiano",
+    "href": "resultados.html#describir-cada-artículo-en-lenguaje-cotidiano",
+    "title": "Resultados",
+    "section": "Describir cada artículo en lenguaje cotidiano",
+    "text": "Describir cada artículo en lenguaje cotidiano\n\n\n\n\n\n\nUn texto generado por artículo (hasta 160 palabras, cinco preguntas fijas), usado entero. BM25 lego pasa de 0.38 a 0.82; el denso, de 0.83 a 0.93.\nNo mueve los comunicados: el problema ahí es otro."
+  },
+  {
+    "objectID": "resultados.html#índices-separados-y-fusión-tardía",
+    "href": "resultados.html#índices-separados-y-fusión-tardía",
+    "title": "Resultados",
+    "section": "Índices separados y fusión tardía",
+    "text": "Índices separados y fusión tardía\nLa idea era no fijar los pesos al construir: un índice por componente y unir con RRF, con pesos decididos por consulta.\n\n\n\n\n\n\n\n\n\n\nPesos (\\(a\\), \\(b\\))\nForma de combinar\nArt. lego\nCom. texto\nArt. lego con nombre\n\n\n\n\n0.2, 0.4\nmezcla normalizada (un vector)\n0.932\n0.251\n0.934\n\n\n0.2, 0.4\nsuma pesada de similitudes\n0.913\n0.217\n0.884\n\n\n0.2, 0.4\nRRF de tres listas\n0.859\n0.188\n0.879\n\n\n0.4, 0.2\nmezcla normalizada\n0.902\n0.236\n0.954\n\n\n\n\nRRF de tres listas pierde: el contexto es uno por instrumento, así que su lista es un empate masivo de cientos de artículos.\n\n\nLo que sí queda: los pesos por tipo de consulta valen (con mención, 0.954 contra 0.934)."
+  },
+  {
+    "objectID": "resultados.html#de-los-hechos-al-fundamento",
+    "href": "resultados.html#de-los-hechos-al-fundamento",
+    "title": "Resultados",
+    "section": "De los hechos al fundamento",
+    "text": "De los hechos al fundamento\n\n\n\n\n\nUn comunicado sobre remoción de manglar lleva a la búsqueda a la prohibición de remover manglar, que es pertinente pero no es lo citado: el comunicado cita la clausura (LGEEPA 170) y la sanción (171). El 70 % de las referencias de comunicados está en capítulos de medidas, sanciones o delitos.\n\nLo que se intentó sin aprender del uso\n\n\n\n\n\n\n\n\nIntento\nCom. texto\nQué pasó\n\n\n\n\nBase (denso, \\(a\\) = 0.2)\n0.256\n\n\n\nUnidades por fracción\n0.272\nla granularidad no es el problema\n\n\nSegunda etapa: capítulos de medidas y sanciones de los instrumentos hallados\n0.283\ngana poco y daña preguntas sobre artículos\n\n\nÍdem más delitos ambientales del Código Penal siempre\n0.315\ndaña mucho lo demás (art. lego 0.86 → 0.71)\n\n\nBuscar sólo en esos 216 artículos\n0.310\nla similitud no ordena dentro del capítulo\n\n\nCasos de ejemplo inventados por artículo\n0.195\nempeora: el modelo inventa desde el texto, no desde el uso\n\n\n\n\n\nAprender del uso\n\nPrecedente: se buscan los 10 documentos ya citados más parecidos y votan sus citas.\nUso agrupado: los comunicados que citan un artículo se agrupan (k-medias esférico) y cada grupo deja su centroide como una unidad más del artículo.\nSin fuga: se aprende de los 981 comunicados anteriores al 3 de marzo de 2019 y se mide con los 421 posteriores.\n\n\n\n\n\n\n\nUn solo vector por artículo no alcanza: el 170 se usa para residuos peligrosos, tala y obras sin autorización, y el promedio las borra.\nEl previo solo ya da 0.59: buena parte de lo que se acierta es la cita de cajón. Por eso el control va siempre al lado.\n\n\n\n\n\n\n\nFusionar con la base sube la cola de 0.35 a 0.54, pero estorba en lo frecuente (0.93 → 0.79): el peso tendría que depender del caso.\nLo nunca citado no se puede aprender del uso; para eso queda la búsqueda en normas.\n\n\n\n¿Y el texto generado?\n\n\n\n\n\nEl caso tipo por grupo (el modelo lee el artículo y 5 comunicados reales) sí describe el uso: 0.73. Pero no supera a promediar los vectores de esos mismos comunicados (0.75) y pierde más en la cola. Su valor es otro: texto legible para explicar por qué salió un artículo."
+  },
+  {
+    "objectID": "resultados.html#lo-que-se-aprendió-del-método",
+    "href": "resultados.html#lo-que-se-aprendió-del-método",
+    "title": "Resultados",
+    "section": "Lo que se aprendió del método",
+    "text": "Lo que se aprendió del método\n\nEl conjunto de prueba decide la conclusión. «El contexto no sirve» y «la fusión no sirve» salieron de conjuntos que no podían mostrar su beneficio. Cada tipo de consulta se reporta aparte.\n\n\nLos controles baratos son los que más enseñan. El previo de popularidad y la búsqueda exacta cambiaron la lectura de varios resultados.\n\n\nLo generativo precalculado funciona cuando resume algo que existe y falla cuando tiene que saber algo que no se le dio, como la forma en que se usa una norma.\n\n\nLa referencia es incompleta. Un sistema que devuelve la norma sustantiva correcta sale penalizado si el comunicado sólo citó la clausura. No se sabe cuánto del error es error."
+  },
+  {
+    "objectID": "resultados.html#lo-siguiente",
+    "href": "resultados.html#lo-siguiente",
+    "title": "Resultados",
+    "section": "Lo siguiente",
+    "text": "Lo siguiente\n\n«Uso agrupado + normas» en el evaluador principal y en el motor, activado por tipo de consulta\nSelector de consulta y particiones por instrumento\nTesis como segunda fuente de uso; BM25 sobre los casos tipo\nPertinencia ampliada: juzgar lo devuelto y no citado\nReordenar con un modelo que lea los candidatos\n\n\nLímites: benchmark sintético sin validación legal · referencias = lo citado · casi todo PROFEPA 2016–2019 · modelos de 0.6B y 4B · una sola colección evaluada a fondo."
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#de-qué-va-esta-presentación",
+    "href": "presentacion/2026-11-20/index.html#de-qué-va-esta-presentación",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "De qué va esta presentación",
+    "text": "De qué va esta presentación\n\nUn relato de hechos de daño ambiental → los artículos de la norma federal que lo fundan.\n\n\nCómo encaja con el artículo de triaje, y dónde nos bifurcamos\nDe dónde vienen los datos\nCómo se trabaja\nLas piezas: representación, índices, fusión, métricas\nEl benchmark sintético local\nResultados, uno por uno: qué sirve y qué no\nBalance y a dónde se puede llegar\n\n\nTodo lo que sigue es medición sobre un benchmark sintético local, sin validación legal. Sirve para comparar métodos entre sí; no sustituye a los reactivos del benchmark de triaje."
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#el-artículo-de-triaje-un-benchmark-no-un-sistema",
+    "href": "presentacion/2026-11-20/index.html#el-artículo-de-triaje-un-benchmark-no-un-sistema",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "El artículo de triaje: un benchmark, no un sistema",
+    "text": "El artículo de triaje: un benchmark, no un sistema\nTarea. Triaje de rutas fundado en disposiciones: de un relato de hechos, decir qué rutas están disponibles (administrativa, civil, penal o abstenerse), qué artículos las fundan, la autoridad competente y cuándo abstenerse.\n\n\nDiseño del piloto\n\nCorpus de recuperación: fuentes federales, la unidad es el artículo\nLa jurisprudencia no se recupera: fija respuestas (Etapa 2)\nReactivos de prensa y de casos decididos, en registro legal y lego\nMedidas: Recall@k por disposición, brecha de registro, cobertura de rutas, paquete completo\nLíneas base: BM25, SBERT multilingüe, fusión RRF\n\n\nLo que el piloto deja pendiente\n\nRepetir con un codificador actual de pesos abiertos: ¿cuánto de la brecha del registro lego es del codificador?\nUn conjunto reservado de otra distribución (comunicados, sentencias)\nLa Etapa 2, que necesita encontrar las decisiones que fijan respuestas\n\n\nLas tres cosas son justo lo que este trabajo ya tiene montado.\n\n\n\nResumen del borrador del equipo (no circular). Aquí somos invitados: nos acomodamos a su diseño de medición."
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#dónde-encaja-y-dónde-nos-bifurcamos",
+    "href": "presentacion/2026-11-20/index.html#dónde-encaja-y-dónde-nos-bifurcamos",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "Dónde encaja y dónde nos bifurcamos",
+    "text": "Dónde encaja y dónde nos bifurcamos\n\n\n\n\n\n\n\nG\n\n\nT\n\nBenchmark de triaje\n(artículo del equipo)\n\n\n\nA\n\nMismas fuentes, completas\n18 instrumentos,\nartículo como unidad\n\n\n\nT-&gt;A\n\n\n\n\n\nB\n\nMismas medidas\nRecall@k, brecha de registro,\nrutas, paquete\n\n\n\nA-&gt;B\n\n\n\n\n\nC\n\nLo que le devolvemos\ncodificador actual + BM25 + RRF,\nconjunto reservado de\ncomunicados y tesis\n\n\n\nB-&gt;C\n\n\n\n\n\nX\n\nBifurcación\n\n\n\nB-&gt;X\n\n\n\n\n\nE1\n\n¿Qué representación del\nartículo conviene?\n\n\n\nX-&gt;E1\n\n\n\n\n\nE2\n\n¿Qué hacer cuando la\nconsulta nombra la ley?\n\n\n\nX-&gt;E2\n\n\n\n\n\nE3\n\n¿Por qué fallan los hechos\nde un comunicado?\n\n\n\nX-&gt;E3\n\n\n\n\n\nE4\n\n¿Cuánto cuesta el\níndice aproximado?\n\n\n\nX-&gt;E4\n\n\n\n\n\nP\n\nProducto en Legistlan\nbuscador y RAG sobre normas,\njurisprudencia y más\n\n\n\nE1-&gt;P\n\n\n\n\n\nE2-&gt;P\n\n\n\n\n\nE3-&gt;P\n\n\n\n\n\nE4-&gt;P\n\n\n\n\n\n\n\n\n\n\n\nRama del artículo (arriba): repetir su medición con piezas actuales, sin cambiar su protocolo.\nRama de exploración (abajo): preguntas que el benchmark no hace y que el producto sí necesita. Esta presentación es sobre todo de esta rama."
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#fuentes",
+    "href": "presentacion/2026-11-20/index.html#fuentes",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "Fuentes",
+    "text": "Fuentes\n\n\n\n\n\n\n\nG\n\n\nS1\n\nSemanario Judicial\nde la Federación (SCJN)\n\n\n\nC1\n\ntesis · ejecutorias\nvotos · acuerdos\n\n\n\nS1-&gt;C1\n\n\n\n\n\nS2\n\nNormas federales\n(releases de Legistlan)\n\n\n\nC2\n\nnormas\n\n\n\nS2-&gt;C2\n\n\n\n\n\nCB\n\nBenchmark RAG de\nNormas Ambientales\n(18 instrumentos completos)\n\n\n\nS2-&gt;CB\n\n\n\n\n\nS3\n\nComunicados de autoridades\n(gob.mx: PROFEPA, SEMARNAT…)\n\n\n\nC3\n\ncomunicados\n\n\n\nS3-&gt;C3\n\n\n\n\n\nS4\n\nArtículos científicos\n(SciELO, OpenAlex)\n\n\n\nC4\n\nartículos\n\n\n\nS4-&gt;C4\n\n\n\n\n\nC1-&gt;CB\n\n\ncitan artículos:\nconjunto de prueba\n\n\n\nC3-&gt;CB\n\n\ncitan artículos\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nColección\nUnidades indexadas\nOrigen y criterio\n\n\n\n\nTesis, ejecutorias, votos, acuerdos\n23,001 · 342,668 · 41,905 · 7,048\nSJF, filtro léxico por términos ambientales y sus documentos ligados (32,382 documentos)\n\n\nNormas\n14,837\nartículos que coinciden con los términos\n\n\nComunicados\n88,510\nboletines institucionales desde 2006\n\n\nArtículos científicos\n178,801\nen español e inglés\n\n\n\n\nInformación pública; los textos descargados son de uso privado de investigación y no se redistribuyen. En el repositorio sólo van código, conteos y resultados."
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#los-términos-con-qué-se-seleccionó-el-corpus",
+    "href": "presentacion/2026-11-20/index.html#los-términos-con-qué-se-seleccionó-el-corpus",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "Los términos: con qué se seleccionó el corpus",
+    "text": "Los términos: con qué se seleccionó el corpus\n134 términos en cinco listas (sjf/terminos_*.txt, un término por línea). En el SJF se buscan en localización, rubro y texto (épocas 9a a 12a, todas las instancias); en normas, comunicados y artículos científicos, sobre el texto.\n\n\n\n\n\n\n\n\n\nLista\nTérminos\nTema\nEjemplos\n\n\n\n\nAmbientales\n18\nambiental\nambiental · medio ambiente · equilibrio ecológico · daño ambiental · impacto ambiental · residuos peligrosos · vida silvestre · forestal · área natural protegida · in dubio pro natura · contaminación\n\n\nAmbientales, expansión\n37\nambiental\nrecursos naturales · ecosistemas · principio de precaución · SEMARNAT · gestión integral de residuos · acuífero · Ley de Aguas Nacionales · Ley de Minería · Ley de Hidrocarburos · parque nacional\n\n\nRelacionados\n33\nrelacionado\nderecho humano al agua · cambio climático · cambio de uso de suelo · manglar · pesca · maltrato animal · delitos contra el ambiente · minería · consulta indígena · Acuerdo de Escazú · denuncia popular\n\n\nSeguridad alimentaria\n27\nalimentaria\nseguridad alimentaria · derecho a la alimentación · etiquetado frontal · NOM-051 · inocuidad alimentaria · maíz transgénico · glifosato · plaguicidas · apicultura\n\n\nAlimentaria, expansión\n19\nalimentaria\nalimentación adecuada · etiquetado de alimentos · Ley Federal de Sanidad Vegetal · Ley de Bioseguridad de OGM · COFEPRIS · maíz · campo\n\n\n\n\nExpansión: n-gramas distintivos y leyes citadas en las tesis que salieron con la primera lista.\nLigados: entran también los documentos unidos a uno temático (la ejecutoria de una tesis, sus votos): 21,430 por términos y 10,952 por liga.\nEs sólo léxico: siguen las «costas» procesales o el «campo» genérico; el filtro semántico está planeado, no aplicado.\n\n\nPLAN 1.1. El benchmark de normas no pasa por este filtro: sus 18 instrumentos entran completos."
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#la-colección-que-se-evalúa-benchmark-rag-de-normas-ambientales",
+    "href": "presentacion/2026-11-20/index.html#la-colección-que-se-evalúa-benchmark-rag-de-normas-ambientales",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "La colección que se evalúa: Benchmark RAG de Normas Ambientales",
+    "text": "La colección que se evalúa: Benchmark RAG de Normas Ambientales\n\n\n\n\n\nFuente\nUnidades\nTransitorios\n\n\n\n\nConstitución\n1,036\n899\n\n\nLGEEPA\n412\n141\n\n\nLGVS\n224\n80\n\n\nLGDFS\n194\n20\n\n\nLGPGIR\n190\n63\n\n\nLFPA\n145\n24\n\n\nLFRA\n80\n23\n\n\nCPF, delitos contra el ambiente\n14\n0\n\n\nAcuerdo de Escazú\n41\n1\n\n\n9 reglamentos vigentes\n1,106\n118\n\n\n\n\n\n18 instrumentos completos, no sólo lo que coincide con términos\n3,439 artículos; 2,070 sin transitorios, que son los que se califican\nLa unidad es el artículo; uno largo se parte para codificar (3,592 unidades) y al calificar se toma el artículo\nSe fija la vigencia: los reglamentos abrogados quedan fuera\nCada artículo conserva su ruta en la norma (título, capítulo)\n\n\nEs chica: caben la búsqueda exacta y muchos experimentos en una laptop."
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#reglas-de-trabajo",
+    "href": "presentacion/2026-11-20/index.html#reglas-de-trabajo",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "Reglas de trabajo",
+    "text": "Reglas de trabajo\n\n\nTrazabilidad\n\nPLAN.md es la fuente de verdad: cada decisión, con fecha, cifras y quién la tomó\nPROCESO.md es la bitácora: qué se hizo, cuánto tardó, qué falló\nTodo se regenera desde los datos crudos con guiones; los conteos de cada paso van en git\n\nCada colección es sui géneris\n\nNada se hereda de una colección a otra sin medirlo\n\n\nSupuesto de error del modelo\n\nLa salida de un modelo generativo se usa entera, como texto para encontrar\nNunca se le extraen campos ni datos puntuales\nUna llamada, una cosa; la variedad sale de varias llamadas\n\nDos cuentas en cada medición\n\nÍndice aproximado y búsqueda exacta, lado a lado\nSe elige entre lo que el índice sirve; la exacta es el control"
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#con-qué-se-hace",
+    "href": "presentacion/2026-11-20/index.html#con-qué-se-hace",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "Con qué se hace",
+    "text": "Con qué se hace\n\n\n\n\n\n\n\nG\n\n\nD\n\nCorpus\n(JSONL por colección)\n\n\n\nU\n\nUnidades\nartículo o fragmento\n\n\n\nD-&gt;U\n\n\n\n\n\nG\n\nTexto generado por recurso\nQwen3-4B, vLLM en Colab\n\n\n\nD-&gt;G\n\n\n\n\n\nE\n\nVectores\nQwen3-Embedding-0.6B\n1,024 dimensiones\n\n\n\nU-&gt;E\n\n\n\n\n\nI2\n\nÍndice léxico\nBM25, perfil de español\n\n\n\nU-&gt;I2\n\n\n\n\n\nG-&gt;E\n\n\n\n\n\nM\n\nMezcla por unidad\ncontexto + descripción\n+ fragmento\n\n\n\nE-&gt;M\n\n\n\n\n\nI1\n\nÍndice denso\nSearchGraph\n\n\n\nM-&gt;I1\n\n\n\n\n\nX\n\nBúsqueda exacta\n(control)\n\n\n\nM-&gt;X\n\n\n\n\n\nR\n\nFusión y paso de\nunidad a artículo\n\n\n\nI1-&gt;R\n\n\n\n\n\nI2-&gt;R\n\n\n\n\n\nQ\n\nConsulta\n\n\n\nQ-&gt;I2\n\n\n\n\n\nEQ\n\nVector de consulta\nOpenVINO, GPU integrada\n\n\n\nQ-&gt;EQ\n\n\n\n\n\nEQ-&gt;I1\n\n\n\n\n\nEQ-&gt;X\n\n\n\n\n\n\n\n\n\n\n\nBúsqueda: SimilaritySearch.jl, TextSearch.jl y SimilaritySearchEngine.jl (software propio). Sin FAISS ni Elasticsearch.\nCómputo: lo masivo (vectores, generación) en Colab con A100, por minutos; las consultas y la evaluación, en local.\nModelos de pesos abiertos: Qwen3-Embedding-0.6B para codificar, Qwen3-4B para generar."
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#vocabulario-que-usamos",
+    "href": "presentacion/2026-11-20/index.html#vocabulario-que-usamos",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "Vocabulario que usamos",
+    "text": "Vocabulario que usamos\n\n\n\n\n\n\n\n\n\nTérmino\nQué quiere decir aquí\n\n\n\n\nInstrumento\nuna ley, código, reglamento o tratado\n\n\nDisposición / artículo\nla unidad que se recupera y se califica\n\n\nUnidad\nlo que se indexa: un artículo, o una parte si es largo\n\n\nTransitorio\nartículo de entrada en vigor o de reforma; se indexa, no se califica\n\n\nRecurso\nel documento o artículo del que salieron varias consultas\n\n\nReferencia\nlos artículos que un documento citó; hace de respuesta correcta\n\n\nRegistro legal / lego\npregunta con vocabulario jurídico, o con palabras cotidianas (lego: quien no es abogado)\n\n\nMención\nsi la consulta nombra el instrumento (oficial, coloquial, sigla)\n\n\nRuta\nvía administrativa, penal o civil\n\n\n\n\n\n\n\n\n\n\n\nTérmino\nQué quiere decir aquí\n\n\n\n\nDenso\nbúsqueda por vectores del codificador\n\n\nLéxico\nbúsqueda por palabras (BM25)\n\n\nContexto\ntexto generado sobre el documento de origen; en normas, uno por instrumento\n\n\nDescripción\ntexto generado por artículo, en lenguaje cotidiano\n\n\nMezcla\nun solo vector con contexto, descripción y texto\n\n\nMotor / exacta\níndice aproximado (grafo) y búsqueda exhaustiva de control\n\n\nPrevio\nlos artículos más citados, sin mirar la consulta\n\n\nPrecedente\nvotan las citas de los documentos más parecidos\n\n\nUso\nlos comunicados que citan un artículo, como representación suya\n\n\nFrecuentes / cola / raras\nlos 10 artículos más citados; el resto; citados 1 o 2 veces"
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#representación-densa-una-mezcla-de-vectores",
+    "href": "presentacion/2026-11-20/index.html#representación-densa-una-mezcla-de-vectores",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "Representación densa: una mezcla de vectores",
+    "text": "Representación densa: una mezcla de vectores\nCada unidad \\(u\\) tiene hasta tres vectores normalizados: su texto \\(\\mathbf{f}_u\\), el contexto de su documento \\(\\mathbf{c}_u\\) y la descripción de su artículo \\(\\mathbf{d}_u\\). Se indexa uno solo:\n\\[\n\\mathbf{v}_u \\;=\\; \\frac{a\\,\\mathbf{c}_u + b\\,\\mathbf{d}_u + (1-a-b)\\,\\mathbf{f}_u}{\\lVert a\\,\\mathbf{c}_u + b\\,\\mathbf{d}_u + (1-a-b)\\,\\mathbf{f}_u \\rVert}\n\\qquad 0 \\le a,\\; b,\\; a+b \\le 1\n\\]\n\nContexto (\\(a\\)): un texto generado que dice de qué documento viene la unidad. En normas es uno por instrumento: 18 valores para 3,592 unidades.\nDescripción (\\(b\\)): un texto generado por artículo, en lenguaje cotidiano, con cinco preguntas fijas (qué dice, a qué hechos aplica, a quién obliga, qué autoridad y vía, qué consecuencia).\nLa consulta \\(\\mathbf{q}\\) se codifica sola (con una instrucción), y se ordena por similitud coseno: \\(\\;\\mathrm{sim}(q,u) = \\mathbf{q}^{\\top}\\mathbf{v}_u\\).\nCambiar \\(a\\) o \\(b\\) no pide GPU: es otro índice con los mismos vectores, y se construye en segundos.\n\n\nPor qué mezclar y no concatenar texto: el fragmento se codifica una vez y los pesos se pueden barrer después. El costo: la consulta no lleva la parte compartida (lo veremos como consultas fuera de distribución)."
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#léxico-fusión-y-paso-a-artículo",
+    "href": "presentacion/2026-11-20/index.html#léxico-fusión-y-paso-a-artículo",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "Léxico, fusión y paso a artículo",
+    "text": "Léxico, fusión y paso a artículo\nBM25 sobre el texto de cada unidad (control léxico; perfil de español de TextSearch.jl):\n\\[\n\\mathrm{BM25}(q,u)=\\sum_{t\\in q}\\mathrm{idf}(t)\\,\\frac{\\mathrm{tf}(t,u)\\,(k_1+1)}{\\mathrm{tf}(t,u)+k_1\\left(1-b+b\\,\\frac{|u|}{\\overline{|u|}}\\right)}\n\\]\nFusión por rangos recíprocos (RRF; Cormack, Clarke y Büttcher, SIGIR 2009), con peso por lista:\n\\[\n\\mathrm{RRF}(x)=\\sum_{i} \\frac{w_i}{c+r_i(x)}, \\qquad \\sum_i w_i = 1\n\\]\ndonde \\(r_i(x)\\) es el rango de \\(x\\) en la lista \\(i\\) (1 es el primero; si no aparece, no suma). La línea base del artículo es la pareja: \\(w=(0.5,\\,0.5)\\), \\(c=60\\). Con \\(c\\) chica mandan los primeros lugares.\nDe unidad a artículo: el artículo toma el puntaje de su mejor unidad, \\(\\;\\mathrm{sim}(q,A)=\\max_{u\\in A}\\mathrm{sim}(q,u)\\), y se quitan los transitorios."
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#qué-se-mide",
+    "href": "presentacion/2026-11-20/index.html#qué-se-mide",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "Qué se mide",
+    "text": "Qué se mide\nPara una consulta \\(q\\) con artículos de referencia \\(G_q\\) y lista devuelta \\(L_q\\) (se miran 100 artículos):\n\\[\n\\mathrm{R@}k(q)=\\mathbb{1}\\Big[\\min_{g\\in G_q} r_{L_q}(g)\\le k\\Big]\n\\qquad\n\\mathrm{Todo@}k(q)=\\mathbb{1}\\Big[\\max_{g\\in G_q} r_{L_q}(g)\\le k\\Big]\n\\qquad\n\\mathrm{Cob@}k(q)=\\frac{|\\{g\\in G_q : r_{L_q}(g)\\le k\\}|}{|G_q|}\n\\]\n\n\\(\\mathbb{1}[\\cdot]\\) es la función indicadora: vale 1 si la condición se cumple y 0 si no. \\(r_{L_q}(g)\\) es el lugar de \\(g\\) en la lista (1 es el primero).\nR@\\(k\\), Recall@\\(k\\): acierto si al menos uno de los artículos de referencia está entre los \\(k\\) primeros.\nTodo@\\(k\\), paquete completo: acierto sólo si están todos.\nCob@\\(k\\), cobertura: fracción de los artículos de referencia que está entre los \\(k\\) primeros."
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#cómo-se-promedia-y-qué-se-reporta",
+    "href": "presentacion/2026-11-20/index.html#cómo-se-promedia-y-qué-se-reporta",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "Cómo se promedia y qué se reporta",
+    "text": "Cómo se promedia y qué se reporta\nSe promedia por recurso (el documento o artículo del que salieron las preguntas) y luego entre recursos, porque las preguntas de un mismo recurso se parecen:\n\\[\n\\overline{\\mathrm{R@}k}=\\frac{1}{|\\mathcal{R}|}\\sum_{\\rho\\in\\mathcal{R}}\\frac{1}{|Q_\\rho|}\\sum_{q\\in Q_\\rho}\\mathrm{R@}k(q)\n\\]\n\nRecall@5 por disposición es la medida principal (la del artículo de triaje); intervalos por remuestreo.\nBrecha de registro: cuánto se corre el rango del artículo entre el registro legal y el lego.\nCobertura de rutas y paquete completo, para referencias con varias disposiciones.\nControles que siempre van: BM25, búsqueda exacta y, en documentos, el previo de popularidad."
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#un-benchmark-sintético-dos-fuentes-de-consultas-sin-anotación-humana",
+    "href": "presentacion/2026-11-20/index.html#un-benchmark-sintético-dos-fuentes-de-consultas-sin-anotación-humana",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "Un benchmark sintético: dos fuentes de consultas, sin anotación humana",
+    "text": "Un benchmark sintético: dos fuentes de consultas, sin anotación humana\n\n\nCitas reales\n\nDocumentos del corpus que citan artículos de la colección, con ley y número identificados\nLa consulta es el texto sin las oraciones que mencionan normas; la referencia, los artículos citados\n1,402 comunicados (1,255 de PROFEPA) y 141 tesis, sobre 256 artículos distintos\n\nPreguntas generadas\n\nSobre cada documento: ciudadano, legal, consecuencia, autoridad\nSobre cada artículo: legal y lego\nUna llamada, una pregunta; 49,760 generadas, 39,068 tras la limpieza\n\n\nMención del instrumento, siempre reportada aparte\n\nsin mención\nnombre oficial · forma coloquial · sigla («Según la LGVS, ¿…?»)\n\nSesgos que hay que decir\n\nLa referencia es lo que el documento citó, no todo lo que aplicaba\nCasi todo es PROFEPA, 2016 a 2019; la ruta civil casi no aparece\nLas preguntas sobre un artículo se escribieron viendo el artículo: las legales son cota superior\nNadie lo validó legalmente\n\n\n\n40,611 consultas sin mención y unas 14 mil por cada forma de mención. Es un benchmark sintético, con todo lo que eso implica: sirve para comparar configuraciones, no sustituye a los reactivos validados del triaje."
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#el-codificador-actual-cierra-la-brecha-del-registro-lego-cuando-se-pregunta-por-un-artículo",
+    "href": "presentacion/2026-11-20/index.html#el-codificador-actual-cierra-la-brecha-del-registro-lego-cuando-se-pregunta-por-un-artículo",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "El codificador actual cierra la brecha del registro lego (cuando se pregunta por un artículo)",
+    "text": "El codificador actual cierra la brecha del registro lego (cuando se pregunta por un artículo)\n\n\nSe repite el patrón del piloto (léxico alto en legal, bajo en lego), y el denso lo corrige: 0.83 contra 0.38.\nLa fusión pareja le quita al denso en registro lego (0.66): BM25 mete ruido.\nEn comunicados todo sale bajo. Esa es la parte difícil, y tiene sección propia.\n\n\nPLAN 2.15. No son los reactivos ni el corpus del piloto: es el mismo patrón, no cifras comparables."
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#el-contexto-del-instrumento-depende-de-cómo-se-pregunta",
+    "href": "presentacion/2026-11-20/index.html#el-contexto-del-instrumento-depende-de-cómo-se-pregunta",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "El contexto del instrumento: depende de cómo se pregunta",
+    "text": "El contexto del instrumento: depende de cómo se pregunta\n\n\nUn barrido sólo con consultas sin mención concluía «el contexto no sirve». Era un sesgo del conjunto: esas preguntas no pueden beneficiarse del contexto.\nSin contexto, nombrar la ley empeora la búsqueda (0.85 → 0.77): el nombre es ruido porque ningún artículo lo trae.\n\n\nPLAN 2.16 y 2.17. Desde entonces los dos tipos de consulta se etiquetan y se reportan por separado."
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#si-la-consulta-nombra-la-ley-el-nombre-es-una-restricción-no-texto",
+    "href": "presentacion/2026-11-20/index.html#si-la-consulta-nombra-la-ley-el-nombre-es-una-restricción-no-texto",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "Si la consulta nombra la ley, el nombre es una restricción, no texto",
+    "text": "Si la consulta nombra la ley, el nombre es una restricción, no texto\nTres intentos para la consulta en registro lego que nombra el instrumento (Recall@5):\n\n\n\n\n\n\n\n\nIntento\nResultado\nVeredicto\n\n\n\n\nDenso sin contexto\n0.77\nel nombre estorba\n\n\nDenso con contexto, \\(a\\) = 0.4 a 0.5\n0.90\nsirve\n\n\nBM25 con el nombre del instrumento antepuesto al texto\n0.25 (de 0.23)\nno alcanza: casa igual con todos los artículos de la ley\n\n\nReconocer el instrumento, filtrar por él y buscar con el resto\n0.94 (R@1 de 0.69 a 0.75)\nfunciona, y con filtro el peso del contexto casi no importa\n\n\n\n\nEl filtro cuesta hoy 4.9 ms por consulta contra 0.36 ms: lo natural son particiones por instrumento en el motor (en curso).\nEs cota superior: las consultas de prueba llevan el nombre oficial. Falta medir formas reales y el caso en que la respuesta está en otra norma (el reglamento, el Código Penal), donde un filtro duro la esconde.\n\n\nPLAN 2.18 y 2.19."
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#dos-cuentas-el-índice-aproximado-también-se-mide",
+    "href": "presentacion/2026-11-20/index.html#dos-cuentas-el-índice-aproximado-también-se-mide",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "Dos cuentas: el índice aproximado también se mide",
+    "text": "Dos cuentas: el índice aproximado también se mide\n\n\nLa consulta no lleva el componente compartido: al pesar más el contexto, los datos se amontonan (similitud al vecino más cercano de 0.80 a 0.99) y se alejan de las consultas (0.69 a 0.59).\nEl grafo recupera 0.95 a 0.99 de lo exacto hasta \\(a\\) = 0.4, y 0.50 con \\(a\\) = 0.8.\n\n\nPLAN 2.23. Diagnóstico: recuperación del índice contra la exacta con consultas reales y con vectores del propio índice; si sólo falla con las reales, es fuera de distribución."
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#describir-cada-artículo-en-lenguaje-cotidiano-sirve",
+    "href": "presentacion/2026-11-20/index.html#describir-cada-artículo-en-lenguaje-cotidiano-sirve",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "Describir cada artículo en lenguaje cotidiano: sirve",
+    "text": "Describir cada artículo en lenguaje cotidiano: sirve\n\n\nUn texto generado por artículo (≤ 160 palabras, cinco preguntas fijas), usado entero. BM25 lego pasa de 0.38 a 0.82; el denso, de 0.83 a 0.93.\nCon mención del instrumento también gana (lego 0.93 a 0.94 en las tres formas).\nNo mueve los comunicados: el problema ahí es otro.\n\n\nPLAN 2.22. Candidato a índice por defecto: \\(a\\) = 0.2, \\(b\\) = 0.4 (decisión abierta)."
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#índices-separados-y-fusión-tardía-tal-cual-pierde",
+    "href": "presentacion/2026-11-20/index.html#índices-separados-y-fusión-tardía-tal-cual-pierde",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "Índices separados y fusión tardía: tal cual, pierde",
+    "text": "Índices separados y fusión tardía: tal cual, pierde\nLa idea. No fijar los pesos al construir: un índice por componente y unir con RRF, con pesos decididos por consulta.\n\n\n\n\n\n\n\n\n\n\nPesos (\\(a\\), \\(b\\))\nForma de combinar\nArt. lego\nCom. texto\nArt. lego con nombre\n\n\n\n\n0.2, 0.4\nmezcla normalizada (un vector)\n0.932\n0.251\n0.934\n\n\n0.2, 0.4\nsuma pesada de similitudes\n0.913\n0.217\n0.884\n\n\n0.2, 0.4\nRRF de tres listas\n0.859\n0.188\n0.879\n\n\n0.4, 0.2\nmezcla normalizada\n0.902\n0.236\n0.954\n\n\n\n\nRRF de tres listas pierde: el contexto es uno por instrumento, así que su lista es un empate masivo de cientos de artículos.\n\n\nLo que sí queda: los pesos por tipo de consulta valen (con mención, 0.954 contra 0.934). La colección es chica y caben varios índices de mezcla con un selector.\n\n\nPLAN 2.24. Sin probar: RRF sólo de fragmento y descripción, el contexto como impulso por instrumento, y el selector."
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#el-problema-se-cita-el-fundamento-de-la-medida-no-la-norma-violada",
+    "href": "presentacion/2026-11-20/index.html#el-problema-se-cita-el-fundamento-de-la-medida-no-la-norma-violada",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "El problema: se cita el fundamento de la medida, no la norma violada",
+    "text": "El problema: se cita el fundamento de la medida, no la norma violada\n\n\nRemoción de manglar → la búsqueda devuelve la prohibición de remover manglar (pertinente, pero no citada); el comunicado cita la clausura (LGEEPA 170) y la sanción (171).\nEl 70 % de las referencias de comunicados está en capítulos de medidas, sanciones o delitos.\n\n\nPLAN 2.21 y 2.25. Recall@5 de la búsqueda en normas con el texto del comunicado: 0.26."
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#lo-que-se-intentó-sin-aprender-del-uso",
+    "href": "presentacion/2026-11-20/index.html#lo-que-se-intentó-sin-aprender-del-uso",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "Lo que se intentó sin aprender del uso",
+    "text": "Lo que se intentó sin aprender del uso\n\n\n\n\n\n\n\n\nIntento\nCom. texto R@5\nQué pasó\n\n\n\n\nBase (denso, \\(a\\) = 0.2)\n0.256\n\n\n\nUnidades por fracción (I., II., …)\n0.272\nla granularidad no es el problema\n\n\nSegunda etapa: capítulos de medidas y sanciones de los instrumentos hallados\n0.283\ngana poco y daña preguntas sobre artículos\n\n\nÍdem más delitos ambientales del CPF siempre\n0.315\ndaña mucho lo demás (art. lego 0.86 → 0.71)\n\n\nBuscar sólo en esos 216 artículos\n0.310\nla similitud no ordena dentro del capítulo\n\n\nCasos de ejemplo inventados por artículo (1,296, generados)\n0.195\nempeora: el modelo inventa desde el texto, no desde el uso\n\n\n\n\nPara LGEEPA 170 el modelo escribe ríos contaminados y residuos tóxicos («riesgo inminente»). En los comunicados reales, el 170 es la clausura de obras sin autorización. Ese puente no está en el artículo ni en el modelo.\n\n\nPLAN 2.25 y 2.26. Además, el instrumento correcto sí se halla (0.71 entre los 5 primeros); lo que falla es el capítulo (0.36) y el artículo (0.26)."
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#aprender-del-uso-precedente-y-uso-por-artículo",
+    "href": "presentacion/2026-11-20/index.html#aprender-del-uso-precedente-y-uso-por-artículo",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "Aprender del uso: precedente y uso por artículo",
+    "text": "Aprender del uso: precedente y uso por artículo\n\n\nPrevio de popularidad (control): los artículos más citados, sin mirar la consulta.\nPrecedente: se buscan los \\(K\\) = 10 documentos ya citados más parecidos y votan sus citas (\\(\\mathbb{1}[\\cdot]\\) vale 1 si \\(A\\) está entre las citas \\(G_j\\) del documento \\(j\\)):\n\\[\n\\mathrm{voto}(q,A)=\\sum_{j\\in N_K(q)} \\mathrm{sim}(q,x_j)\\;\\mathbb{1}[A\\in G_j]\n\\]\nUso agrupado: los comunicados que citan a \\(A\\) se agrupan (k-medias esférico) y cada grupo deja su centroide \\(\\boldsymbol{\\mu}_{A,g}\\) como una unidad más del artículo:\n\\[\n\\mathrm{sim}(q,A)=\\max_{g\\le k_A}\\;\\mathbf{q}^{\\top}\\boldsymbol{\\mu}_{A,g}\n\\]\ncon \\(k_A=\\min\\!\\big(16,\\ \\max(2,\\ \\mathrm{round}(n_A/8))\\big)\\) grupos (uno solo si \\(n_A&lt;4\\)).\n\n\n\n\n\n\n\n\nG\n\n\nQ\n\nHechos (consulta)\n\n\n\nNn\n\nBúsqueda en normas\ntexto del artículo\n\n\n\nQ-&gt;Nn\n\n\n\n\n\nU\n\nBúsqueda en el uso\ngrupos de comunicados que\ncitaron cada artículo\n\n\n\nQ-&gt;U\n\n\n\n\n\nF\n\nFusión RRF\n\n\n\nNn-&gt;F\n\n\n\n\n\nU-&gt;F\n\n\n\n\n\nA\n\nArtículos\n\n\n\nF-&gt;A\n\n\n\n\n\n\n\n\n\n\nSin fuga: se aprende de los 981 comunicados anteriores al 3 de marzo de 2019 y se mide con los 421 posteriores."
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#agrupado-el-uso-iguala-al-precedente-con-266-vectores",
+    "href": "presentacion/2026-11-20/index.html#agrupado-el-uso-iguala-al-precedente-con-266-vectores",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "Agrupado, el uso iguala al precedente con 266 vectores",
+    "text": "Agrupado, el uso iguala al precedente con 266 vectores\n\n\nUn solo vector por artículo no alcanza: el 170 se usa para residuos peligrosos, tala y obras sin autorización, y el promedio las borra. Tiene que ser por grupo.\nEl previo solo ya da 0.59: buena parte de lo que se acierta es la cita de cajón. Por eso el control va siempre al lado.\n\n\nPLAN 2.27. Con pregunta ciudadana: base 0.19, precedente 0.67, uso agrupado 0.67."
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#lo-frecuente-se-aprende-la-cola-necesita-las-dos-búsquedas",
+    "href": "presentacion/2026-11-20/index.html#lo-frecuente-se-aprende-la-cola-necesita-las-dos-búsquedas",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "Lo frecuente se aprende; la cola necesita las dos búsquedas",
+    "text": "Lo frecuente se aprende; la cola necesita las dos búsquedas\n\n\nFusionar con la base sube la cola de 0.35 a 0.54, pero estorba en lo frecuente (0.93 → 0.79): el peso tendría que depender del caso.\nLo nunca citado no se puede aprender del uso: para eso queda la búsqueda en normas.\nDe paso se transfiere a tesis (0.50 → 0.55) y daña las preguntas sobre artículos (0.86 → 0.70): sólo para consultas de hechos."
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#y-el-texto-generado-sólo-si-parte-de-algo-real",
+    "href": "presentacion/2026-11-20/index.html#y-el-texto-generado-sólo-si-parte-de-algo-real",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "¿Y el texto generado? Sólo si parte de algo real",
+    "text": "¿Y el texto generado? Sólo si parte de algo real\n\n\nEl caso tipo por grupo (el modelo lee el artículo y 5 comunicados reales) sí describe el uso: 0.73.\nPero no supera a promediar los vectores de esos mismos comunicados (0.75), y pierde más en la cola (0.29 contra 0.42): generalizar borra el detalle que distingue.\nSu valor es otro: texto legible para explicar por qué salió un artículo, o para darlo al generador del RAG.\n\n\nPLAN 2.26 y 2.27. Las dos mitades de la figura usan particiones distintas; se compara cada una contra su base."
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#qué-sirve-y-qué-no-en-una-tabla",
+    "href": "presentacion/2026-11-20/index.html#qué-sirve-y-qué-no-en-una-tabla",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "Qué sirve y qué no, en una tabla",
+    "text": "Qué sirve y qué no, en una tabla\n\n\n\n\n\n\n\n\n\n\nIntento\nEfecto (Recall@5)\nEstado\n\n\n\n\n✔\nCodificador actual en lugar de sólo léxico\nlego 0.38 → 0.83\nbase del sistema\n\n\n✔\nDescripción por artículo en lenguaje cotidiano\nlego 0.83 → 0.93; BM25 0.38 → 0.82\ncandidato a índice por defecto\n\n\n✔\nContexto del instrumento, peso moderado\ncon mención 0.77 → 0.90\nse mantiene\n\n\n✔\nFiltro por instrumento cuando se nombra\n0.90 → 0.94\nespera particiones en el motor\n\n\n✔\nPesos por tipo de consulta\n0.934 → 0.954\npor construir el selector\n\n\n✔\nBúsqueda exacta como control\nevitó atribuir 3 a 15 puntos al parámetro equivocado\nregla fija\n\n\n✔\nPrecedente y uso agrupado por artículo\ncomunicados 0.28 → 0.77\npor integrar\n\n\n✘\nFusión RRF pareja con BM25\nlego 0.83 → 0.66\nse reporta como línea base\n\n\n✘\nNombre del instrumento dentro del texto de BM25\nsin cambio en la fusión\ndescartado\n\n\n✘\nFusión tardía de tres índices\n0.93 → 0.86\ndescartada tal cual\n\n\n✘\nUnidades por fracción; segunda etapa por capítulos\n+0.02 a +0.06, con daño\ndescartadas\n\n\n✘\nCasos de ejemplo inventados\n0.26 → 0.20\ndescartados\n\n\n≈\nCaso tipo generado desde comunicados reales\n0.73, bajo el promedio de vectores (0.75)\nútil como texto, no para recuperar"
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#lo-que-aprendimos-del-método",
+    "href": "presentacion/2026-11-20/index.html#lo-que-aprendimos-del-método",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "Lo que aprendimos del método",
+    "text": "Lo que aprendimos del método\n\nEl conjunto de prueba decide la conclusión. «El contexto no sirve» y «la fusión no sirve» salieron de conjuntos que no podían mostrar su beneficio. Cada tipo de consulta se reporta aparte.\n\n\nLos controles baratos son los que más enseñan. El previo de popularidad (0.59 sin mirar la consulta) y la búsqueda exacta cambiaron la lectura de varios resultados.\n\n\nLo generativo precalculado funciona cuando resume algo que existe (el artículo, comunicados reales) y falla cuando tiene que saber algo que no se le dio (cómo se usa una norma).\n\n\nLa referencia es incompleta. Un sistema que devuelve la norma sustantiva correcta sale penalizado si el comunicado sólo citó la clausura. No sabemos cuánto del error es error: es un punto de diseño de benchmark."
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#a-dónde-se-puede-llegar",
+    "href": "presentacion/2026-11-20/index.html#a-dónde-se-puede-llegar",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "A dónde se puede llegar",
+    "text": "A dónde se puede llegar\n\n\n\n\n\n\n\nG\n\n\nQ\n\nConsulta\n\n\n\nS\n\nSelector\n¿nombra un instrumento?\n¿cuenta hechos?\n\n\n\nQ-&gt;S\n\n\n\n\n\nP\n\nPartición por instrumento\n+ mezcla con más contexto\n\n\n\nS-&gt;P\n\n\nnombra la ley\n\n\n\nM\n\nMezcla con descripción\na = 0.2, b = 0.4\n\n\n\nS-&gt;M\n\n\npregunta por una regla\n\n\n\nH\n\nNormas + uso agrupado\npesos distintos para lo\nfrecuente y la cola\n\n\n\nS-&gt;H\n\n\ncuenta hechos\n\n\n\nL\n\nLista de artículos\n\n\n\nP-&gt;L\n\n\n\n\n\nM-&gt;L\n\n\n\n\n\nH-&gt;L\n\n\n\n\n\nJ\n\nLectura: reordenar o\njuzgar pertinencia\n\n\n\nL-&gt;J\n\n\n\n\n\nG2\n\nRespuesta con rutas\ny fundamento (RAG)\n\n\n\nJ-&gt;G2\n\n\n\n\n\n\n\n\n\n\nLo siguiente, en orden\n\n«Uso agrupado + normas» en el evaluador principal y en el motor, activado por tipo de consulta\nSelector de consulta y particiones por instrumento\nTesis como segunda fuente de uso; BM25 sobre los casos tipo\nPertinencia ampliada: juzgar lo devuelto y no citado (modelo o experto)\nReordenar con un modelo que lea los candidatos (pide cómputo)\n\n\nPunteado: todavía no existe."
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#qué-necesitamos-del-equipo",
+    "href": "presentacion/2026-11-20/index.html#qué-necesitamos-del-equipo",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "Qué necesitamos del equipo",
+    "text": "Qué necesitamos del equipo\n\n\nPara la rama del artículo\n\nLos 119 reactivos y la lista exacta de las 13 fuentes, para correr su protocolo tal cual\nLa definición de cobertura de rutas que usan (estricta: una disposición de referencia de esa ruta, o cualquier artículo de una ley de la ruta)\nSi los transitorios entran al corpus del piloto\n\n\nPara la rama de exploración\n\nRevisión de las formas coloquiales de cada instrumento\nCriterio sobre la referencia incompleta: ¿la norma sustantiva violada cuenta como acierto?\n¿Qué proporción de consultas reales nombra la ley? Decide el peso del contexto\nUna muestra pequeña validada por abogados para anclar todo lo demás\n\n\n\nLímites que no hay que perder de vista: benchmark sintético sin validación legal · referencias = lo citado · casi todo PROFEPA 2016–2019 · modelos de 0.6B y 4B · una sola colección evaluada a fondo."
+  },
+  {
+    "objectID": "grafos.html",
+    "href": "grafos.html",
+    "title": "Grafo semántico",
+    "section": "",
+    "text": "Un mapa de los documentos de cada colección, y de todas juntas. Cada punto es un documento; dos documentos quedan cerca si sus vectores se parecen. Se puede acercar con la rueda, arrastrar, pasar el cursor para ver el título y hacer clic en un punto para ver sus vecinos más cercanos."
+  },
+  {
+    "objectID": "grafos.html#cómo-leerlo",
+    "href": "grafos.html#cómo-leerlo",
+    "title": "Grafo semántico",
+    "section": "Cómo leerlo",
+    "text": "Cómo leerlo\n\nLa posición no tiene unidades. La proyección a dos dimensiones conserva vecindades, no distancias: importa quién queda junto a quién, no qué tan lejos están dos grupos.\nEl color es la colección en el grafo general. En el de una colección es el tema por el que el documento entró al corpus (ambiental, relacionado, seguridad alimentaria, varios, o sin términos: entró por estar ligado a otro). En el benchmark de normas es el instrumento.\nLos vecinos del panel sí son exactos: son los documentos más cercanos por coseno en 1,024 dimensiones, no los que quedaron cerca en el dibujo. Un vecino puede verse lejos en el mapa.\nEn el grafo general los artículos científicos ocupan el centro y la izquierda, los comunicados se reparten en islas entre ellos y lo judicial (tesis, ejecutorias, votos) queda junto, en un extremo. Las colecciones se tocan donde comparten tema."
+  },
+  {
+    "objectID": "grafos.html#cómo-se-construyó",
+    "href": "grafos.html#cómo-se-construyó",
+    "title": "Grafo semántico",
+    "section": "Cómo se construyó",
+    "text": "Cómo se construyó\n\nUn vector por documento. La media de los vectores de sus fragmentos, mezclada con el vector del contexto del documento con peso 0.5: \\(\\mathbf{v} = \\mathrm{normaliza}\\big(0.5\\,\\mathbf{c} + 0.5\\,\\mathrm{normaliza}(\\overline{\\mathbf{f}})\\big)\\). Es la misma mezcla de los índices de búsqueda (ver Cómo se hizo).\nLos 15 vecinos más cercanos de cada documento, por búsqueda exacta por lotes.\nProyección UMAP a dos dimensiones sobre ese grafo de vecinos, con SimSearchManifoldLearning.jl, con inicio espectral; 100 épocas por colección y 300 en el general.\nExportación para el navegador: posiciones, título, grupo y las aristas a los 3 vecinos más cercanos.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nGrafo\nDocumentos\nEn el visor\nVecinos\nDistancia mediana al más cercano\nTiempo de vecinos\nTiempo de proyección"
+  },
+  {
+    "objectID": "grafos.html#dos-cuentas",
+    "href": "grafos.html#dos-cuentas",
+    "title": "Grafo semántico",
+    "section": "Dos cuentas: el índice contra la búsqueda exacta",
+    "text": "Dos cuentas: el índice contra la búsqueda exacta\nLa primera versión de los dos grafos grandes usó un índice aproximado (SearchGraph, afinado para recuperar 0.95). Antes de darlo por bueno se midió contra la búsqueda exacta en una muestra de 2,000 documentos: qué fracción de los 15 vecinos exactos estaba entre los que dio el índice.\n\n\n\n\n\n\n\n\n\n\n\nGrafo\nDocumentos\nRecuperación media\nDocumentos de la muestra bajo 0.8\nÍndice\nExacta\n\n\n\n\nArtículos científicos\n178,801\n0.935\n138 de 2,000\n20 s (0.11 ms por documento)\n222 s (1.24 ms)\n\n\nGeneral\n284,392\n0.878\n308 de 2,000\n28 s (0.10 ms por documento)\n535 s (1.88 ms)\n\n\n\nEl índice es entre once y diecinueve veces más rápido, pero en el grafo general uno de cada siete documentos de la muestra tenía mal más de la quinta parte de sus vecinos. Para un mapa que se construye una vez, la exacta cuesta minutos, así que todos los grafos del sitio llevan vecinos exactos y el índice queda como la opción para colecciones más grandes, siempre con este control al lado.\nAquí las consultas son los propios vectores indexados, así que la pérdida no viene de consultas fuera de distribución, como en la búsqueda (ver Resultados): apunta a la estructura de los datos (documentos amontonados o casi duplicados, que el contexto compartido favorece) o a los parámetros del índice. No se diagnosticó más, porque la exacta resolvió el caso."
+  },
+  {
+    "objectID": "presentacion/index.html",
+    "href": "presentacion/index.html",
+    "title": "Presentaciones",
+    "section": "",
+    "text": "Cada presentación se publica con su fecha y no se modifica después; una versión nueva sale con fecha nueva.\n\n\n\nFecha\nPresentación\nPara quién\n\n\n\n\n20 de noviembre de 2026\nRecuperación de normas ambientales para RAG: dónde vamos, qué sirve, qué no sirvió y a dónde se puede llegar\nColegas del equipo; 39 diapositivas\n\n\n\n\nSe avanza con las flechas del teclado o con la barra espaciadora; la tecla o muestra todas las diapositivas."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "",
+    "text": "De un relato de hechos de daño ambiental, encontrar los artículos de la norma federal que lo fundan. Este sitio resume qué datos se juntaron, cómo se trabaja, qué se ha medido y qué sirvió o no sirvió."
+  },
+  {
+    "objectID": "index.html#qué-hay-en-el-sitio",
+    "href": "index.html#qué-hay-en-el-sitio",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "Qué hay en el sitio",
+    "text": "Qué hay en el sitio\n\n\n\nPágina\nContenido\n\n\n\n\nFuentes\nDe dónde vienen los datos, los 134 términos con que se seleccionó el corpus y la colección que se evalúa\n\n\nCómo se hizo\nReglas de trabajo, la tubería, la representación por mezcla de vectores, la fusión y las medidas\n\n\nResultados\nCada experimento con su cifra: qué sirve, qué no y lo que queda abierto\n\n\nGrafo semántico\nMapa interactivo de los documentos de cada colección y de todas juntas, por vecinos más cercanos\n\n\nPresentaciones\nLas diapositivas para colegas, con el mismo contenido en formato de plática; una versión por fecha"
+  },
+  {
+    "objectID": "index.html#lo-principal-en-corto",
+    "href": "index.html#lo-principal-en-corto",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "Lo principal, en corto",
+    "text": "Lo principal, en corto\n\nUn codificador actual de pesos abiertos cierra la brecha del registro lego. Cuando se pregunta por un artículo con palabras cotidianas, BM25 acierta 0.38 (Recall@5) y el denso 0.83; con una descripción generada por artículo, 0.93.\n\n\nDe los hechos de un comunicado al artículo citado, lo que funciona es aprender del uso. La búsqueda en normas da 0.28; agrupar los comunicados que ya citaron cada artículo y usarlos como representación suya, 0.77.\n\n\nNo sirvieron: la fusión pareja con BM25 en registro lego, la fusión tardía de tres índices, partir por fracción y los casos de ejemplo inventados por un modelo.\n\n\nEl índice aproximado también se mide. Toda evaluación lleva dos cuentas, índice y búsqueda exacta. Sin ese control, varios puntos de pérdida del índice se habrían atribuido al parámetro que se estaba comparando.\n\n\nTodas las cifras son mediciones sobre un benchmark sintético local, sin validación legal. Sirven para comparar métodos entre sí; no sustituyen a un benchmark validado. Los textos de las fuentes son información pública, de uso privado de investigación, y no se redistribuyen aquí: el sitio sólo lleva conteos, resultados y títulos."
+  },
+  {
+    "objectID": "fuentes.html",
+    "href": "fuentes.html",
+    "title": "Fuentes",
+    "section": "",
+    "text": "G\n\n\nS1\n\nSemanario Judicial\nde la Federación (SCJN)\n\n\n\nC1\n\ntesis · ejecutorias\nvotos · acuerdos\n\n\n\nS1-&gt;C1\n\n\n\n\n\nS2\n\nNormas federales\n(releases de Legistlan)\n\n\n\nC2\n\nnormas\n\n\n\nS2-&gt;C2\n\n\n\n\n\nCB\n\nBenchmark RAG de\nNormas Ambientales\n(18 instrumentos completos)\n\n\n\nS2-&gt;CB\n\n\n\n\n\nS3\n\nComunicados de autoridades\n(gob.mx: PROFEPA, SEMARNAT…)\n\n\n\nC3\n\ncomunicados\n\n\n\nS3-&gt;C3\n\n\n\n\n\nS4\n\nArtículos científicos\n(SciELO, OpenAlex)\n\n\n\nC4\n\nartículos\n\n\n\nS4-&gt;C4\n\n\n\n\n\nC1-&gt;CB\n\n\ncitan artículos:\nconjunto de prueba\n\n\n\nC3-&gt;CB\n\n\ncitan artículos\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nColección\nDocumentos\nUnidades indexadas\nOrigen y criterio\n\n\n\n\nTesis\n12,989\n23,001\nSJF; con términos (7,011) o ligadas a un documento con términos\n\n\nEjecutorias\n11,550\n342,668\nSJF; los precedentes completos\n\n\nVotos\n7,276\n41,905\nSJF; votos particulares y concurrentes\n\n\nAcuerdos\n567\n7,048\nSJF; todos con términos\n\n\nNormas\n12,131\n14,837\nartículos de leyes, reglamentos, lineamientos y tratados que coinciden con los términos\n\n\nComunicados\n57,636\n88,510\nboletines institucionales desde 2006\n\n\nArtículos científicos\n178,801\n178,801\nSciELO México y OpenAlex, en español e inglés\n\n\nBenchmark de normas\n3,442\n3,592\n18 instrumentos completos, sin filtro por términos\n\n\n\nCada colección tiene estructura y longitud propias: la fragmentación, el contexto y la evaluación se deciden por colección y se verifican con una muestra de esa colección."
+  },
+  {
+    "objectID": "fuentes.html#de-dónde-vienen-los-datos",
+    "href": "fuentes.html#de-dónde-vienen-los-datos",
+    "title": "Fuentes",
+    "section": "",
+    "text": "G\n\n\nS1\n\nSemanario Judicial\nde la Federación (SCJN)\n\n\n\nC1\n\ntesis · ejecutorias\nvotos · acuerdos\n\n\n\nS1-&gt;C1\n\n\n\n\n\nS2\n\nNormas federales\n(releases de Legistlan)\n\n\n\nC2\n\nnormas\n\n\n\nS2-&gt;C2\n\n\n\n\n\nCB\n\nBenchmark RAG de\nNormas Ambientales\n(18 instrumentos completos)\n\n\n\nS2-&gt;CB\n\n\n\n\n\nS3\n\nComunicados de autoridades\n(gob.mx: PROFEPA, SEMARNAT…)\n\n\n\nC3\n\ncomunicados\n\n\n\nS3-&gt;C3\n\n\n\n\n\nS4\n\nArtículos científicos\n(SciELO, OpenAlex)\n\n\n\nC4\n\nartículos\n\n\n\nS4-&gt;C4\n\n\n\n\n\nC1-&gt;CB\n\n\ncitan artículos:\nconjunto de prueba\n\n\n\nC3-&gt;CB\n\n\ncitan artículos\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nColección\nDocumentos\nUnidades indexadas\nOrigen y criterio\n\n\n\n\nTesis\n12,989\n23,001\nSJF; con términos (7,011) o ligadas a un documento con términos\n\n\nEjecutorias\n11,550\n342,668\nSJF; los precedentes completos\n\n\nVotos\n7,276\n41,905\nSJF; votos particulares y concurrentes\n\n\nAcuerdos\n567\n7,048\nSJF; todos con términos\n\n\nNormas\n12,131\n14,837\nartículos de leyes, reglamentos, lineamientos y tratados que coinciden con los términos\n\n\nComunicados\n57,636\n88,510\nboletines institucionales desde 2006\n\n\nArtículos científicos\n178,801\n178,801\nSciELO México y OpenAlex, en español e inglés\n\n\nBenchmark de normas\n3,442\n3,592\n18 instrumentos completos, sin filtro por términos\n\n\n\nCada colección tiene estructura y longitud propias: la fragmentación, el contexto y la evaluación se deciden por colección y se verifican con una muestra de esa colección."
+  },
+  {
+    "objectID": "fuentes.html#los-términos-con-qué-se-seleccionó-el-corpus",
+    "href": "fuentes.html#los-términos-con-qué-se-seleccionó-el-corpus",
+    "title": "Fuentes",
+    "section": "Los términos: con qué se seleccionó el corpus",
+    "text": "Los términos: con qué se seleccionó el corpus\nSon 134 términos en cinco listas. En el Semanario se buscan en localización, rubro y texto (épocas 9a a 12a, todas las instancias); en normas, comunicados y artículos científicos, sobre el texto.\n\n\n\n\n\n\n\n\n\nLista\nTérminos\nTema\nEjemplos\n\n\n\n\nAmbientales\n18\nambiental\nambiental · medio ambiente · equilibrio ecológico · daño ambiental · impacto ambiental · residuos peligrosos · vida silvestre · forestal · área natural protegida · in dubio pro natura · contaminación\n\n\nAmbientales, expansión\n37\nambiental\nrecursos naturales · ecosistemas · principio de precaución · SEMARNAT · gestión integral de residuos · acuífero · Ley de Aguas Nacionales · Ley de Minería · Ley de Hidrocarburos · parque nacional\n\n\nRelacionados\n33\nrelacionado\nderecho humano al agua · cambio climático · cambio de uso de suelo · manglar · pesca · maltrato animal · delitos contra el ambiente · minería · consulta indígena · Acuerdo de Escazú · denuncia popular\n\n\nSeguridad alimentaria\n27\nalimentaria\nseguridad alimentaria · derecho a la alimentación · etiquetado frontal · NOM-051 · inocuidad alimentaria · maíz transgénico · glifosato · plaguicidas · apicultura\n\n\nAlimentaria, expansión\n19\nalimentaria\nalimentación adecuada · etiquetado de alimentos · Ley Federal de Sanidad Vegetal · Ley de Bioseguridad de OGM · COFEPRIS · maíz · campo\n\n\n\n\nExpansión: n-gramas distintivos y leyes citadas en las tesis que salieron con la primera lista.\nLigados: entran también los documentos unidos a uno temático (la ejecutoria de una tesis, sus votos): 21,430 documentos por términos y 10,952 por liga.\nEl filtro es sólo léxico: siguen dentro las «costas» procesales o el «campo» genérico. El filtro semántico está planeado, no aplicado."
+  },
+  {
+    "objectID": "fuentes.html#la-colección-que-se-evalúa-benchmark-rag-de-normas-ambientales",
+    "href": "fuentes.html#la-colección-que-se-evalúa-benchmark-rag-de-normas-ambientales",
+    "title": "Fuentes",
+    "section": "La colección que se evalúa: Benchmark RAG de Normas Ambientales",
+    "text": "La colección que se evalúa: Benchmark RAG de Normas Ambientales\n\n\n\n\n\n\n\n\nFuente\nUnidades\nDe ellas, transitorios\n\n\n\n\nConstitución\n1,036\n899\n\n\nLey General del Equilibrio Ecológico y la Protección al Ambiente (LGEEPA)\n412\n141\n\n\nLey General de Vida Silvestre (LGVS)\n224\n80\n\n\nLey General de Desarrollo Forestal Sustentable (LGDFS)\n194\n20\n\n\nLey General para la Prevención y Gestión Integral de los Residuos (LGPGIR)\n190\n63\n\n\nLey Federal de Procedimiento Administrativo (LFPA)\n145\n24\n\n\nLey Federal de Responsabilidad Ambiental (LFRA)\n80\n23\n\n\nCódigo Penal Federal, delitos contra el ambiente\n14\n0\n\n\nAcuerdo de Escazú\n41\n1\n\n\n9 reglamentos vigentes\n1,106\n118\n\n\n\n\n18 instrumentos completos, no sólo lo que coincide con términos.\n3,439 artículos; 2,070 sin transitorios, que son los que se califican.\nLa unidad es el artículo. Uno largo se parte para codificar (3,592 unidades) y al calificar se toma el artículo.\nSe fija la vigencia: los reglamentos abrogados quedan fuera.\nEs una colección chica: caben la búsqueda exacta y muchos experimentos en una laptop."
+  },
+  {
+    "objectID": "fuentes.html#cosecha",
+    "href": "fuentes.html#cosecha",
+    "title": "Fuentes",
+    "section": "Cosecha",
+    "text": "Cosecha\nTodas las cosechas (Semanario, OpenAlex, SciELO, comunicados) se corren cada semana, piden sólo lo nuevo y se pueden retomar. El Semanario y los comunicados de la SCJN se bajan con un navegador real, porque las peticiones directas son bloqueadas. Los pasos caros (codificar, generar texto) se guardan por identificador y por huella del texto, para no repetir lo ya procesado.\n\nInformación pública; los textos descargados son de uso privado de investigación y no se redistribuyen. En el repositorio sólo van código, conteos y resultados."
+  }
+]

@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Resultados – RAG de normas ambientales</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-93e89df908321505f8b56d190c37876d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No se han encontrado resultados",
+    "search-matching-documents-text": "documentos encontrados",
+    "search-copy-link-title": "Copiar el enlace en la búsqueda",
+    "search-hide-matches-text": "Ocultar resultados adicionales",
+    "search-more-match-text": "resultado adicional en este documento",
+    "search-more-matches-text": "resultados adicionales en este documento",
+    "search-clear-button-title": "Borrar",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancelar",
+    "search-submit-button-title": "Enviar",
+    "search-label": "Buscar"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">RAG de normas ambientales</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Buscar"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Navegación de palanca" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Inicio</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./fuentes.html"> 
+<span class="menu-text">Fuentes</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./metodo.html"> 
+<span class="menu-text">Cómo se hizo</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./resultados.html" aria-current="page"> 
+<span class="menu-text">Resultados</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./grafos.html"> 
+<span class="menu-text">Grafo semántico</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./presentacion/index.html"> 
+<span class="menu-text">Presentaciones</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">En esta página</h2>
+   
+  <ul>
+  <li><a href="#balance" id="toc-balance" class="nav-link active" data-scroll-target="#balance">Balance</a></li>
+  <li><a href="#el-codificador-actual-cierra-la-brecha-del-registro-lego" id="toc-el-codificador-actual-cierra-la-brecha-del-registro-lego" class="nav-link" data-scroll-target="#el-codificador-actual-cierra-la-brecha-del-registro-lego">El codificador actual cierra la brecha del registro lego</a></li>
+  <li><a href="#el-contexto-del-instrumento-depende-de-cómo-se-pregunta" id="toc-el-contexto-del-instrumento-depende-de-cómo-se-pregunta" class="nav-link" data-scroll-target="#el-contexto-del-instrumento-depende-de-cómo-se-pregunta">El contexto del instrumento depende de cómo se pregunta</a></li>
+  <li><a href="#si-la-consulta-nombra-la-ley-el-nombre-es-una-restricción" id="toc-si-la-consulta-nombra-la-ley-el-nombre-es-una-restricción" class="nav-link" data-scroll-target="#si-la-consulta-nombra-la-ley-el-nombre-es-una-restricción">Si la consulta nombra la ley, el nombre es una restricción</a></li>
+  <li><a href="#dos-cuentas" id="toc-dos-cuentas" class="nav-link" data-scroll-target="#dos-cuentas">Dos cuentas: el índice aproximado también se mide</a></li>
+  <li><a href="#describir-cada-artículo-en-lenguaje-cotidiano" id="toc-describir-cada-artículo-en-lenguaje-cotidiano" class="nav-link" data-scroll-target="#describir-cada-artículo-en-lenguaje-cotidiano">Describir cada artículo en lenguaje cotidiano</a></li>
+  <li><a href="#índices-separados-y-fusión-tardía" id="toc-índices-separados-y-fusión-tardía" class="nav-link" data-scroll-target="#índices-separados-y-fusión-tardía">Índices separados y fusión tardía</a></li>
+  <li><a href="#de-los-hechos-al-fundamento" id="toc-de-los-hechos-al-fundamento" class="nav-link" data-scroll-target="#de-los-hechos-al-fundamento">De los hechos al fundamento</a>
+  <ul class="collapse">
+  <li><a href="#lo-que-se-intentó-sin-aprender-del-uso" id="toc-lo-que-se-intentó-sin-aprender-del-uso" class="nav-link" data-scroll-target="#lo-que-se-intentó-sin-aprender-del-uso">Lo que se intentó sin aprender del uso</a></li>
+  <li><a href="#aprender-del-uso" id="toc-aprender-del-uso" class="nav-link" data-scroll-target="#aprender-del-uso">Aprender del uso</a></li>
+  <li><a href="#y-el-texto-generado" id="toc-y-el-texto-generado" class="nav-link" data-scroll-target="#y-el-texto-generado">¿Y el texto generado?</a></li>
+  </ul></li>
+  <li><a href="#lo-que-se-aprendió-del-método" id="toc-lo-que-se-aprendió-del-método" class="nav-link" data-scroll-target="#lo-que-se-aprendió-del-método">Lo que se aprendió del método</a></li>
+  <li><a href="#lo-siguiente" id="toc-lo-siguiente" class="nav-link" data-scroll-target="#lo-siguiente">Lo siguiente</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Resultados</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Todas las cifras son Recall@5 por disposición sobre el <a href="./metodo.html#el-conjunto-de-prueba-local">benchmark sintético local</a>, salvo que se diga otra cosa.</p>
+<section id="balance" class="level2">
+<h2 class="anchored" data-anchor-id="balance">Balance</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 4%">
+<col style="width: 38%">
+<col style="width: 32%">
+<col style="width: 26%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Intento</th>
+<th>Efecto</th>
+<th>Estado</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>✔</td>
+<td>Codificador actual en lugar de sólo léxico</td>
+<td>lego 0.38 → 0.83</td>
+<td>base del sistema</td>
+</tr>
+<tr class="even">
+<td>✔</td>
+<td>Descripción por artículo en lenguaje cotidiano</td>
+<td>lego 0.83 → 0.93; BM25 0.38 → 0.82</td>
+<td>candidato a índice por defecto</td>
+</tr>
+<tr class="odd">
+<td>✔</td>
+<td>Contexto del instrumento, peso moderado</td>
+<td>con mención 0.77 → 0.90</td>
+<td>se mantiene</td>
+</tr>
+<tr class="even">
+<td>✔</td>
+<td>Filtro por instrumento cuando se nombra</td>
+<td>0.90 → 0.94</td>
+<td>espera particiones en el motor</td>
+</tr>
+<tr class="odd">
+<td>✔</td>
+<td>Pesos por tipo de consulta</td>
+<td>0.934 → 0.954</td>
+<td>por construir el selector</td>
+</tr>
+<tr class="even">
+<td>✔</td>
+<td>Búsqueda exacta como control</td>
+<td>evitó atribuir 3 a 15 puntos al parámetro equivocado</td>
+<td>regla fija</td>
+</tr>
+<tr class="odd">
+<td>✔</td>
+<td>Precedente y uso agrupado por artículo</td>
+<td>comunicados 0.28 → 0.77</td>
+<td>por integrar</td>
+</tr>
+<tr class="even">
+<td>✘</td>
+<td>Fusión RRF pareja con BM25</td>
+<td>lego 0.83 → 0.66</td>
+<td>se reporta como línea base</td>
+</tr>
+<tr class="odd">
+<td>✘</td>
+<td>Nombre del instrumento dentro del texto de BM25</td>
+<td>sin cambio en la fusión</td>
+<td>descartado</td>
+</tr>
+<tr class="even">
+<td>✘</td>
+<td>Fusión tardía de tres índices</td>
+<td>0.93 → 0.86</td>
+<td>descartada tal cual</td>
+</tr>
+<tr class="odd">
+<td>✘</td>
+<td>Unidades por fracción; segunda etapa por capítulos</td>
+<td>+0.02 a +0.06, con daño</td>
+<td>descartadas</td>
+</tr>
+<tr class="even">
+<td>✘</td>
+<td>Casos de ejemplo inventados</td>
+<td>0.26 → 0.20</td>
+<td>descartados</td>
+</tr>
+<tr class="odd">
+<td>≈</td>
+<td>Caso tipo generado desde comunicados reales</td>
+<td>0.73, bajo el promedio de vectores (0.75)</td>
+<td>útil como texto, no para recuperar</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="el-codificador-actual-cierra-la-brecha-del-registro-lego" class="level2">
+<h2 class="anchored" data-anchor-id="el-codificador-actual-cierra-la-brecha-del-registro-lego">El codificador actual cierra la brecha del registro lego</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figuras/registro.svg" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
+<ul>
+<li>BM25 es alto con la pregunta legal y bajo con la de registro lego; el denso lo corrige: <strong>0.83</strong> contra 0.38.</li>
+<li>La fusión pareja le quita al denso en registro lego (0.66): BM25 mete ruido.</li>
+<li>En comunicados todo sale bajo. Es la parte difícil y tiene <a href="#de-los-hechos-al-fundamento">sección propia</a>.</li>
+</ul>
+</section>
+<section id="el-contexto-del-instrumento-depende-de-cómo-se-pregunta" class="level2">
+<h2 class="anchored" data-anchor-id="el-contexto-del-instrumento-depende-de-cómo-se-pregunta">El contexto del instrumento depende de cómo se pregunta</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figuras/contexto.svg" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
+<ul>
+<li>Un barrido sólo con consultas que no nombran la ley concluía «el contexto no sirve». Era un sesgo del conjunto: esas preguntas no pueden beneficiarse del contexto.</li>
+<li>Sin contexto, nombrar la ley empeora la búsqueda (0.85 → 0.77): el nombre es ruido porque ningún artículo lo trae.</li>
+</ul>
+</section>
+<section id="si-la-consulta-nombra-la-ley-el-nombre-es-una-restricción" class="level2">
+<h2 class="anchored" data-anchor-id="si-la-consulta-nombra-la-ley-el-nombre-es-una-restricción">Si la consulta nombra la ley, el nombre es una restricción</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 40%">
+<col style="width: 30%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Intento, para la consulta en registro lego que nombra el instrumento</th>
+<th style="text-align: right;">Resultado</th>
+<th>Veredicto</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Denso sin contexto</td>
+<td style="text-align: right;">0.77</td>
+<td>el nombre estorba</td>
+</tr>
+<tr class="even">
+<td>Denso con contexto, <span class="math inline">\(a\)</span> = 0.4 a 0.5</td>
+<td style="text-align: right;">0.90</td>
+<td>sirve</td>
+</tr>
+<tr class="odd">
+<td>BM25 con el nombre del instrumento antepuesto al texto</td>
+<td style="text-align: right;">0.25 (de 0.23)</td>
+<td>no alcanza: casa igual con todos los artículos de la ley</td>
+</tr>
+<tr class="even">
+<td>Reconocer el instrumento, filtrar por él y buscar con el resto</td>
+<td style="text-align: right;"><strong>0.94</strong></td>
+<td>funciona, y con filtro el peso del contexto casi no importa</td>
+</tr>
+</tbody>
+</table>
+<p>El filtro cuesta hoy 4.9 ms por consulta contra 0.36 ms; lo natural son particiones por instrumento en el motor. Es cota superior: las consultas de prueba llevan el nombre oficial, y falta el caso en que la respuesta está en otra norma, donde un filtro duro la esconde.</p>
+</section>
+<section id="dos-cuentas" class="level2">
+<h2 class="anchored" data-anchor-id="dos-cuentas">Dos cuentas: el índice aproximado también se mide</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figuras/dos_cuentas.svg" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
+<ul>
+<li>La consulta no lleva el componente compartido. Al pesar más el contexto, los datos se amontonan (similitud al vecino más cercano de 0.80 a 0.99) y se alejan de las consultas (de 0.69 a 0.59).</li>
+<li>El grafo recupera 0.95 a 0.99 de lo exacto hasta <span class="math inline">\(a\)</span> = 0.4, y 0.50 con <span class="math inline">\(a\)</span> = 0.8.</li>
+<li>Lo mismo se vio al construir el <a href="./grafos.html#dos-cuentas">grafo semántico</a> de este sitio.</li>
+</ul>
+</section>
+<section id="describir-cada-artículo-en-lenguaje-cotidiano" class="level2">
+<h2 class="anchored" data-anchor-id="describir-cada-artículo-en-lenguaje-cotidiano">Describir cada artículo en lenguaje cotidiano</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figuras/descripciones.svg" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
+<ul>
+<li>Un texto generado por artículo (hasta 160 palabras, cinco preguntas fijas), usado entero. BM25 lego pasa de 0.38 a <strong>0.82</strong>; el denso, de 0.83 a <strong>0.93</strong>.</li>
+<li>No mueve los comunicados: el problema ahí es otro.</li>
+</ul>
+</section>
+<section id="índices-separados-y-fusión-tardía" class="level2">
+<h2 class="anchored" data-anchor-id="índices-separados-y-fusión-tardía">Índices separados y fusión tardía</h2>
+<p>La idea era no fijar los pesos al construir: un índice por componente y unir con RRF, con pesos decididos por consulta.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 22%">
+<col style="width: 22%">
+<col style="width: 22%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Pesos (<span class="math inline">\(a\)</span>, <span class="math inline">\(b\)</span>)</th>
+<th>Forma de combinar</th>
+<th style="text-align: right;">Art. lego</th>
+<th style="text-align: right;">Com. texto</th>
+<th style="text-align: right;">Art. lego con nombre</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0.2, 0.4</td>
+<td>mezcla normalizada (un vector)</td>
+<td style="text-align: right;"><strong>0.932</strong></td>
+<td style="text-align: right;"><strong>0.251</strong></td>
+<td style="text-align: right;">0.934</td>
+</tr>
+<tr class="even">
+<td>0.2, 0.4</td>
+<td>suma pesada de similitudes</td>
+<td style="text-align: right;">0.913</td>
+<td style="text-align: right;">0.217</td>
+<td style="text-align: right;">0.884</td>
+</tr>
+<tr class="odd">
+<td>0.2, 0.4</td>
+<td>RRF de tres listas</td>
+<td style="text-align: right;">0.859</td>
+<td style="text-align: right;">0.188</td>
+<td style="text-align: right;">0.879</td>
+</tr>
+<tr class="even">
+<td>0.4, 0.2</td>
+<td>mezcla normalizada</td>
+<td style="text-align: right;">0.902</td>
+<td style="text-align: right;">0.236</td>
+<td style="text-align: right;"><strong>0.954</strong></td>
+</tr>
+</tbody>
+</table>
+<div class="nosirve">
+<p>RRF de tres listas pierde: el contexto es uno por instrumento, así que su lista es un empate masivo de cientos de artículos.</p>
+</div>
+<div class="sirve">
+<p>Lo que sí queda: los pesos por tipo de consulta valen (con mención, 0.954 contra 0.934).</p>
+</div>
+</section>
+<section id="de-los-hechos-al-fundamento" class="level2">
+<h2 class="anchored" data-anchor-id="de-los-hechos-al-fundamento">De los hechos al fundamento</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figuras/cajon.svg" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
+<p>Un comunicado sobre remoción de manglar lleva a la búsqueda a la prohibición de remover manglar, que es pertinente pero <strong>no es lo citado</strong>: el comunicado cita la clausura (LGEEPA 170) y la sanción (171). El 70 % de las referencias de comunicados está en capítulos de medidas, sanciones o delitos.</p>
+<section id="lo-que-se-intentó-sin-aprender-del-uso" class="level3">
+<h3 class="anchored" data-anchor-id="lo-que-se-intentó-sin-aprender-del-uso">Lo que se intentó sin aprender del uso</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 40%">
+<col style="width: 30%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Intento</th>
+<th style="text-align: right;">Com. texto</th>
+<th>Qué pasó</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Base (denso, <span class="math inline">\(a\)</span> = 0.2)</td>
+<td style="text-align: right;">0.256</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Unidades por fracción</td>
+<td style="text-align: right;">0.272</td>
+<td>la granularidad no es el problema</td>
+</tr>
+<tr class="odd">
+<td>Segunda etapa: capítulos de medidas y sanciones de los instrumentos hallados</td>
+<td style="text-align: right;">0.283</td>
+<td>gana poco y daña preguntas sobre artículos</td>
+</tr>
+<tr class="even">
+<td>Ídem más delitos ambientales del Código Penal siempre</td>
+<td style="text-align: right;">0.315</td>
+<td>daña mucho lo demás (art. lego 0.86 → 0.71)</td>
+</tr>
+<tr class="odd">
+<td>Buscar sólo en esos 216 artículos</td>
+<td style="text-align: right;">0.310</td>
+<td>la similitud no ordena dentro del capítulo</td>
+</tr>
+<tr class="even">
+<td>Casos de ejemplo inventados por artículo</td>
+<td style="text-align: right;"><strong>0.195</strong></td>
+<td>empeora: el modelo inventa desde el texto, no desde el uso</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="aprender-del-uso" class="level3">
+<h3 class="anchored" data-anchor-id="aprender-del-uso">Aprender del uso</h3>
+<ul>
+<li><strong>Precedente</strong>: se buscan los 10 documentos ya citados más parecidos y votan sus citas.</li>
+<li><strong>Uso agrupado</strong>: los comunicados que citan un artículo se agrupan (k-medias esférico) y cada grupo deja su centroide como una unidad más del artículo.</li>
+<li><strong>Sin fuga</strong>: se aprende de los 981 comunicados anteriores al 3 de marzo de 2019 y se mide con los 421 posteriores.</li>
+</ul>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figuras/comunicados.svg" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
+<ul>
+<li>Un solo vector por artículo no alcanza: el 170 se usa para residuos peligrosos, tala y obras sin autorización, y el promedio las borra.</li>
+<li>El previo solo ya da 0.59: buena parte de lo que se acierta es la cita de cajón. Por eso el control va siempre al lado.</li>
+</ul>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figuras/cola.svg" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
+<ul>
+<li>Fusionar con la base sube la cola de 0.35 a <strong>0.54</strong>, pero estorba en lo frecuente (0.93 → 0.79): el peso tendría que depender del caso.</li>
+<li>Lo nunca citado no se puede aprender del uso; para eso queda la búsqueda en normas.</li>
+</ul>
+</section>
+<section id="y-el-texto-generado" class="level3">
+<h3 class="anchored" data-anchor-id="y-el-texto-generado">¿Y el texto generado?</h3>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figuras/generativo.svg" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
+<p>El caso tipo por grupo (el modelo lee el artículo y 5 comunicados reales) sí describe el uso: 0.73. Pero no supera a promediar los vectores de esos mismos comunicados (0.75) y pierde más en la cola. Su valor es otro: texto legible para explicar por qué salió un artículo.</p>
+</section>
+</section>
+<section id="lo-que-se-aprendió-del-método" class="level2">
+<h2 class="anchored" data-anchor-id="lo-que-se-aprendió-del-método">Lo que se aprendió del método</h2>
+<div class="sirve">
+<p><strong>El conjunto de prueba decide la conclusión.</strong> «El contexto no sirve» y «la fusión no sirve» salieron de conjuntos que no podían mostrar su beneficio. Cada tipo de consulta se reporta aparte.</p>
+</div>
+<div class="sirve">
+<p><strong>Los controles baratos son los que más enseñan.</strong> El previo de popularidad y la búsqueda exacta cambiaron la lectura de varios resultados.</p>
+</div>
+<div class="sirve">
+<p><strong>Lo generativo precalculado funciona cuando resume algo que existe</strong> y falla cuando tiene que saber algo que no se le dio, como la forma en que se usa una norma.</p>
+</div>
+<div class="abierto">
+<p><strong>La referencia es incompleta.</strong> Un sistema que devuelve la norma sustantiva correcta sale penalizado si el comunicado sólo citó la clausura. No se sabe cuánto del error es error.</p>
+</div>
+</section>
+<section id="lo-siguiente" class="level2">
+<h2 class="anchored" data-anchor-id="lo-siguiente">Lo siguiente</h2>
+<ol type="1">
+<li>«Uso agrupado + normas» en el evaluador principal y en el motor, activado por tipo de consulta</li>
+<li>Selector de consulta y particiones por instrumento</li>
+<li>Tesis como segunda fuente de uso; BM25 sobre los casos tipo</li>
+<li>Pertinencia ampliada: juzgar lo devuelto y no citado</li>
+<li>Reordenar con un modelo que lea los candidatos</li>
+</ol>
+<div class="nota">
+<p>Límites: benchmark sintético sin validación legal · referencias = lo citado · casi todo PROFEPA 2016–2019 · modelos de 0.6B y 4B · una sola colección evaluada a fondo.</p>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copiado");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copiado");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Legistlan · estado al 20 de noviembre de 2026</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

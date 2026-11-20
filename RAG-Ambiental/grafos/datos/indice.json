@@ -1,0 +1,189 @@
+[
+ {
+  "clave": "acuerdos-a50",
+  "nombre": "acuerdos",
+  "peso_contexto": 0.5,
+  "colecciones": [
+   "acuerdos"
+  ],
+  "nodos_total": 567,
+  "nodos": 567,
+  "k": 15,
+  "vecinos": "exacta",
+  "control_exacto": null,
+  "distancia_mediana": 0.06139046,
+  "segundos": {
+   "vecinos": 0,
+   "vectores": 0.3,
+   "proyeccion": 0.9
+  },
+  "titulo": "Acuerdos"
+ },
+ {
+  "clave": "articulos-a50",
+  "nombre": "articulos",
+  "peso_contexto": 0.5,
+  "colecciones": [
+   "articulos"
+  ],
+  "nodos_total": 178801,
+  "nodos": 25000,
+  "k": 15,
+  "vecinos": "exacta",
+  "control_exacto": null,
+  "distancia_mediana": 0.20454061,
+  "segundos": {
+   "vecinos": 221.5,
+   "vectores": 2.2,
+   "proyeccion": 24.6
+  },
+  "titulo": "Artículos científicos"
+ },
+ {
+  "clave": "benchmark_normas_ambientales-a50",
+  "nombre": "benchmark_normas_ambientales",
+  "peso_contexto": 0.5,
+  "colecciones": [
+   "benchmark_normas_ambientales"
+  ],
+  "nodos_total": 3442,
+  "nodos": 3442,
+  "k": 15,
+  "vecinos": "exacta",
+  "control_exacto": null,
+  "distancia_mediana": 0.08310914,
+  "segundos": {
+   "vecinos": 0.2,
+   "vectores": 0.1,
+   "proyeccion": 0.1
+  },
+  "titulo": "Normas del benchmark"
+ },
+ {
+  "clave": "comunicados-a50",
+  "nombre": "comunicados",
+  "peso_contexto": 0.5,
+  "colecciones": [
+   "comunicados"
+  ],
+  "nodos_total": 57636,
+  "nodos": 25000,
+  "k": 15,
+  "vecinos": "exacta",
+  "control_exacto": null,
+  "distancia_mediana": 0.11994755,
+  "segundos": {
+   "vecinos": 122.9,
+   "vectores": 1,
+   "proyeccion": 2.8
+  },
+  "titulo": "Comunicados"
+ },
+ {
+  "clave": "ejecutorias-a50",
+  "nombre": "ejecutorias",
+  "peso_contexto": 0.5,
+  "colecciones": [
+   "ejecutorias"
+  ],
+  "nodos_total": 11550,
+  "nodos": 11550,
+  "k": 15,
+  "vecinos": "exacta",
+  "control_exacto": null,
+  "distancia_mediana": 0.09635776,
+  "segundos": {
+   "vecinos": 3.5,
+   "vectores": 1.1,
+   "proyeccion": 1.3
+  },
+  "titulo": "Ejecutorias"
+ },
+ {
+  "clave": "general-a50",
+  "nombre": "general",
+  "peso_contexto": 0.5,
+  "colecciones": [
+   "tesis",
+   "ejecutorias",
+   "votos",
+   "acuerdos",
+   "normas",
+   "benchmark_normas_ambientales",
+   "comunicados",
+   "articulos"
+  ],
+  "nodos_total": 284392,
+  "nodos": 28852,
+  "k": 15,
+  "vecinos": "exacta",
+  "control_exacto": null,
+  "distancia_mediana": 0.16933852,
+  "segundos": {
+   "vecinos": 534.5,
+   "vectores": 4.3,
+   "proyeccion": 115.4
+  },
+  "titulo": "General (todas las colecciones)"
+ },
+ {
+  "clave": "normas-a50",
+  "nombre": "normas",
+  "peso_contexto": 0.5,
+  "colecciones": [
+   "normas"
+  ],
+  "nodos_total": 12131,
+  "nodos": 12131,
+  "k": 15,
+  "vecinos": "exacta",
+  "control_exacto": null,
+  "distancia_mediana": 0.07798046,
+  "segundos": {
+   "vecinos": 3.9,
+   "vectores": 0.2,
+   "proyeccion": 0.7
+  },
+  "titulo": "Normas (por términos)"
+ },
+ {
+  "clave": "tesis-a50",
+  "nombre": "tesis",
+  "peso_contexto": 0.5,
+  "colecciones": [
+   "tesis"
+  ],
+  "nodos_total": 12989,
+  "nodos": 12989,
+  "k": 15,
+  "vecinos": "exacta",
+  "control_exacto": null,
+  "distancia_mediana": 0.12963927,
+  "segundos": {
+   "vecinos": 4.7,
+   "vectores": 0.3,
+   "proyeccion": 0.6
+  },
+  "titulo": "Tesis"
+ },
+ {
+  "clave": "votos-a50",
+  "nombre": "votos",
+  "peso_contexto": 0.5,
+  "colecciones": [
+   "votos"
+  ],
+  "nodos_total": 7276,
+  "nodos": 7276,
+  "k": 15,
+  "vecinos": "exacta",
+  "control_exacto": null,
+  "distancia_mediana": 0.07263565,
+  "segundos": {
+   "vecinos": 1.1,
+   "vectores": 0.2,
+   "proyeccion": 0.4
+  },
+  "titulo": "Votos"
+ }
+]
