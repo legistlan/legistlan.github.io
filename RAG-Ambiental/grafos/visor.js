@@ -306,9 +306,15 @@
       o.value = g.clave;
       selector.append(o);
     }
-    const inicial = indice.find((g) => g.colecciones.length === 1 && g.colecciones[0] === "benchmark_normas_ambientales") || indice[0];
+    // grafos.html?g=<clave> abre ese grafo (acepta la clave sin el peso: ?g=consultas)
+    const pedido = new URLSearchParams(location.search).get("g");
+    const inicial = (pedido && indice.find((g) => g.clave === pedido || g.nombre === pedido))
+      || indice.find((g) => g.colecciones.length === 1 && g.colecciones[0] === "benchmark_normas_ambientales") || indice[0];
     selector.value = inicial.clave;
-    selector.addEventListener("change", () => carga(indice.find((g) => g.clave === selector.value)));
+    selector.addEventListener("change", () => {
+      history.replaceState(null, "", "?g=" + encodeURIComponent(selector.value));
+      carga(indice.find((g) => g.clave === selector.value));
+    });
     mide();
     carga(inicial);
   }).catch(() => { aviso.textContent = "No están los datos de los grafos (falta correr grafo/exporta.py)."; });

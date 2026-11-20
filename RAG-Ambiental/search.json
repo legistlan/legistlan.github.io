@@ -396,7 +396,7 @@
     "href": "grafos.html",
     "title": "Grafo semántico",
     "section": "",
-    "text": "Un mapa de los documentos de cada colección, y de todas juntas, y otro de las consultas del benchmark sintético. Cada punto es un documento (o una consulta); dos puntos quedan cerca si sus vectores se parecen. Se puede acercar con la rueda, arrastrar, pasar el cursor para ver el título y hacer clic en un punto para ver sus vecinos más cercanos."
+    "text": "Un mapa de los documentos de cada colección, y de todas juntas, y otro de las consultas del benchmark sintético. Cada punto es un documento (o una consulta); dos puntos quedan cerca si sus vectores se parecen. Se puede acercar con la rueda, arrastrar, pasar el cursor para ver el título y hacer clic en un punto para ver sus vecinos más cercanos.\nAbrir directamente: general · normas del benchmark · consultas del benchmark sintético · los demás, en el selector."
   },
   {
     "objectID": "grafos.html#cómo-leerlo",
@@ -410,7 +410,7 @@
     "href": "grafos.html#consultas",
     "title": "Grafo semántico",
     "section": "El grafo de consultas",
-    "text": "El grafo de consultas\nEl grafo «Consultas del benchmark sintético» tiene un punto por cada una de las 40,611 consultas con que se mide la búsqueda (ver Resultados). Cada consulta va con su propio vector, sin mezcla, y el color dice de qué recurso salió y con qué ángulo: de un artículo (en registro legal o lego), de un comunicado (su texto, una pregunta legal, una ciudadana, por la autoridad o por la consecuencia) o de una tesis.\n\nEl vecino más cercano de una consulta salió del mismo recurso en el 82 % de los casos (94 % en las de artículos, 75 % en las de comunicados) y es del mismo tipo en el 99 %.\nEntre sus 15 vecinos, 33 % son del mismo recurso y 71 % del mismo ángulo: las consultas se agrupan por el recurso del que salieron y, después, por su registro.\nConsultas y documentos no se mezclan en un mismo mapa. Sus vectores están fuera de distribución entre sí y saldrían como dos nubes aparte. Lo siguiente es un grafo que conecte preguntas e instrumentos."
+    "text": "El grafo de consultas\nAbrir el grafo de consultas en el visor.\nEl grafo «Consultas del benchmark sintético» tiene un punto por cada una de las 40,611 consultas con que se mide la búsqueda (ver Resultados). Cada consulta va con su propio vector, sin mezcla, y el color dice de qué recurso salió y con qué ángulo: de un artículo (en registro legal o lego), de un comunicado (su texto, una pregunta legal, una ciudadana, por la autoridad o por la consecuencia) o de una tesis.\n\nEl vecino más cercano de una consulta salió del mismo recurso en el 82 % de los casos (94 % en las de artículos, 75 % en las de comunicados) y es del mismo tipo en el 99 %.\nEntre sus 15 vecinos, 33 % son del mismo recurso y 71 % del mismo ángulo: las consultas se agrupan por el recurso del que salieron y, después, por su registro.\nConsultas y documentos no se mezclan en un mismo mapa. Sus vectores están fuera de distribución entre sí y saldrían como dos nubes aparte. Lo siguiente es un grafo que conecte preguntas e instrumentos."
   },
   {
     "objectID": "grafos.html#cómo-se-construyó",
