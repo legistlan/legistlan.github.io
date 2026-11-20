@@ -182,7 +182,7 @@ window.Quarto = {
 </header>
 
 
-<p>Un mapa de los documentos de cada colección, y de todas juntas. Cada punto es un documento; dos documentos quedan cerca si sus vectores se parecen. Se puede acercar con la rueda, arrastrar, pasar el cursor para ver el título y hacer clic en un punto para ver sus vecinos más cercanos.</p>
+<p>Un mapa de los documentos de cada colección, y de todas juntas, y otro de las consultas del benchmark sintético. Cada punto es un documento (o una consulta); dos puntos quedan cerca si sus vectores se parecen. Se puede acercar con la rueda, arrastrar, pasar el cursor para ver el título y hacer clic en un punto para ver sus vecinos más cercanos.</p>
 <div id="visor">
 
 </div>
@@ -194,8 +194,18 @@ window.Quarto = {
 <ul>
 <li><strong>La posición no tiene unidades.</strong> La proyección a dos dimensiones conserva vecindades, no distancias: importa quién queda junto a quién, no qué tan lejos están dos grupos.</li>
 <li><strong>El color</strong> es la colección en el grafo general. En el de una colección es el tema por el que el documento entró al corpus (ambiental, relacionado, seguridad alimentaria, varios, o sin términos: entró por estar ligado a otro). En el benchmark de normas es el instrumento.</li>
+<li><strong>Las aristas</strong> unen cada punto con sus 3 vecinos más cercanos por coseno. No indican pertenencia al mismo instrumento ni cita: sólo parecido entre vectores.</li>
 <li><strong>Los vecinos del panel sí son exactos</strong>: son los documentos más cercanos por coseno en 1,024 dimensiones, no los que quedaron cerca en el dibujo. Un vecino puede verse lejos en el mapa.</li>
 <li>En el grafo general los artículos científicos ocupan el centro y la izquierda, los comunicados se reparten en islas entre ellos y lo judicial (tesis, ejecutorias, votos) queda junto, en un extremo. Las colecciones se tocan donde comparten tema.</li>
+</ul>
+</section>
+<section id="consultas" class="level2">
+<h2 class="anchored" data-anchor-id="consultas">El grafo de consultas</h2>
+<p>El grafo «Consultas del benchmark sintético» tiene un punto por cada una de las 40,611 consultas con que se mide la búsqueda (ver <a href="./resultados.html">Resultados</a>). Cada consulta va con su propio vector, sin mezcla, y el color dice de qué recurso salió y con qué ángulo: de un artículo (en registro legal o lego), de un comunicado (su texto, una pregunta legal, una ciudadana, por la autoridad o por la consecuencia) o de una tesis.</p>
+<ul>
+<li>El vecino más cercano de una consulta salió del <strong>mismo recurso</strong> en el 82 % de los casos (94 % en las de artículos, 75 % en las de comunicados) y es del mismo tipo en el 99 %.</li>
+<li>Entre sus 15 vecinos, 33 % son del mismo recurso y 71 % del mismo ángulo: las consultas se agrupan por el recurso del que salieron y, después, por su registro.</li>
+<li><strong>Consultas y documentos no se mezclan en un mismo mapa.</strong> Sus vectores están fuera de distribución entre sí y saldrían como dos nubes aparte. Lo siguiente es un grafo que conecte preguntas e instrumentos.</li>
 </ul>
 </section>
 <section id="cómo-se-construyó" class="level2">
@@ -220,7 +230,7 @@ window.Quarto = {
 <thead>
 <tr class="header">
 <th>Grafo</th>
-<th style="text-align: right;">Documentos</th>
+<th style="text-align: right;">Nodos</th>
 <th style="text-align: right;">En el visor</th>
 <th>Vecinos</th>
 <th style="text-align: right;">Distancia mediana al más cercano</th>

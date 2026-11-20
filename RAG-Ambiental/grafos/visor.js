@@ -281,11 +281,12 @@
     for (let j = 0; j < d.e.length; j += 2) d.vec[d.e[j]].push(d.e[j + 1]);
     d.arbol = d3.quadtree().x((i) => d.x[i]).y((i) => d.y[i]).addAll(d3.range(n));
     G = d;
+    const unidad = info.unidad || "documentos";
     ficha.append(el("p", null, d.muestra
-      ? miles(d.nodos) + " nodos de muestra, de " + miles(d.nodos_total) + " documentos."
-      : miles(d.nodos) + " documentos, todos."));
+      ? miles(d.nodos) + " nodos de muestra, de " + miles(d.nodos_total) + " " + unidad + "."
+      : miles(d.nodos) + " " + unidad + ", todos."));
     const p = el("p", "visor-sub");
-    p.append("Vecinos: " + d.vecinos + ". Peso del contexto: " + d.peso_contexto + ". ");
+    p.append("Vecinos: " + d.vecinos + ". " + (unidad === "consultas" ? "" : "Peso del contexto: " + d.peso_contexto + ". "));
     const a = el("a", null, "Imagen con todos los nodos");
     a.href = BASE + info.clave + ".png";
     a.target = "_blank";
@@ -301,7 +302,7 @@
   fetch(BASE + "indice.json").then((r) => r.json()).then((indice) => {
     indice.sort((a, b) => (b.colecciones.length > 1) - (a.colecciones.length > 1) || a.titulo.localeCompare(b.titulo, "es"));
     for (const g of indice) {
-      const o = el("option", null, g.titulo + " · " + miles(g.nodos_total) + " documentos");
+      const o = el("option", null, g.titulo + " · " + miles(g.nodos_total) + " " + (g.unidad || "documentos"));
       o.value = g.clave;
       selector.append(o);
     }

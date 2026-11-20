@@ -396,21 +396,28 @@
     "href": "grafos.html",
     "title": "Grafo semántico",
     "section": "",
-    "text": "Un mapa de los documentos de cada colección, y de todas juntas. Cada punto es un documento; dos documentos quedan cerca si sus vectores se parecen. Se puede acercar con la rueda, arrastrar, pasar el cursor para ver el título y hacer clic en un punto para ver sus vecinos más cercanos."
+    "text": "Un mapa de los documentos de cada colección, y de todas juntas, y otro de las consultas del benchmark sintético. Cada punto es un documento (o una consulta); dos puntos quedan cerca si sus vectores se parecen. Se puede acercar con la rueda, arrastrar, pasar el cursor para ver el título y hacer clic en un punto para ver sus vecinos más cercanos."
   },
   {
     "objectID": "grafos.html#cómo-leerlo",
     "href": "grafos.html#cómo-leerlo",
     "title": "Grafo semántico",
     "section": "Cómo leerlo",
-    "text": "Cómo leerlo\n\nLa posición no tiene unidades. La proyección a dos dimensiones conserva vecindades, no distancias: importa quién queda junto a quién, no qué tan lejos están dos grupos.\nEl color es la colección en el grafo general. En el de una colección es el tema por el que el documento entró al corpus (ambiental, relacionado, seguridad alimentaria, varios, o sin términos: entró por estar ligado a otro). En el benchmark de normas es el instrumento.\nLos vecinos del panel sí son exactos: son los documentos más cercanos por coseno en 1,024 dimensiones, no los que quedaron cerca en el dibujo. Un vecino puede verse lejos en el mapa.\nEn el grafo general los artículos científicos ocupan el centro y la izquierda, los comunicados se reparten en islas entre ellos y lo judicial (tesis, ejecutorias, votos) queda junto, en un extremo. Las colecciones se tocan donde comparten tema."
+    "text": "Cómo leerlo\n\nLa posición no tiene unidades. La proyección a dos dimensiones conserva vecindades, no distancias: importa quién queda junto a quién, no qué tan lejos están dos grupos.\nEl color es la colección en el grafo general. En el de una colección es el tema por el que el documento entró al corpus (ambiental, relacionado, seguridad alimentaria, varios, o sin términos: entró por estar ligado a otro). En el benchmark de normas es el instrumento.\nLas aristas unen cada punto con sus 3 vecinos más cercanos por coseno. No indican pertenencia al mismo instrumento ni cita: sólo parecido entre vectores.\nLos vecinos del panel sí son exactos: son los documentos más cercanos por coseno en 1,024 dimensiones, no los que quedaron cerca en el dibujo. Un vecino puede verse lejos en el mapa.\nEn el grafo general los artículos científicos ocupan el centro y la izquierda, los comunicados se reparten en islas entre ellos y lo judicial (tesis, ejecutorias, votos) queda junto, en un extremo. Las colecciones se tocan donde comparten tema."
+  },
+  {
+    "objectID": "grafos.html#consultas",
+    "href": "grafos.html#consultas",
+    "title": "Grafo semántico",
+    "section": "El grafo de consultas",
+    "text": "El grafo de consultas\nEl grafo «Consultas del benchmark sintético» tiene un punto por cada una de las 40,611 consultas con que se mide la búsqueda (ver Resultados). Cada consulta va con su propio vector, sin mezcla, y el color dice de qué recurso salió y con qué ángulo: de un artículo (en registro legal o lego), de un comunicado (su texto, una pregunta legal, una ciudadana, por la autoridad o por la consecuencia) o de una tesis.\n\nEl vecino más cercano de una consulta salió del mismo recurso en el 82 % de los casos (94 % en las de artículos, 75 % en las de comunicados) y es del mismo tipo en el 99 %.\nEntre sus 15 vecinos, 33 % son del mismo recurso y 71 % del mismo ángulo: las consultas se agrupan por el recurso del que salieron y, después, por su registro.\nConsultas y documentos no se mezclan en un mismo mapa. Sus vectores están fuera de distribución entre sí y saldrían como dos nubes aparte. Lo siguiente es un grafo que conecte preguntas e instrumentos."
   },
   {
     "objectID": "grafos.html#cómo-se-construyó",
     "href": "grafos.html#cómo-se-construyó",
     "title": "Grafo semántico",
     "section": "Cómo se construyó",
-    "text": "Cómo se construyó\n\nUn vector por documento. La media de los vectores de sus fragmentos, mezclada con el vector del contexto del documento con peso 0.5: \\(\\mathbf{v} = \\mathrm{normaliza}\\big(0.5\\,\\mathbf{c} + 0.5\\,\\mathrm{normaliza}(\\overline{\\mathbf{f}})\\big)\\). Es la misma mezcla de los índices de búsqueda (ver Cómo se hizo).\nLos 15 vecinos más cercanos de cada documento, por búsqueda exacta por lotes.\nProyección UMAP a dos dimensiones sobre ese grafo de vecinos, con SimSearchManifoldLearning.jl, con inicio espectral; 100 épocas por colección y 300 en el general.\nExportación para el navegador: posiciones, título, grupo y las aristas a los 3 vecinos más cercanos.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nGrafo\nDocumentos\nEn el visor\nVecinos\nDistancia mediana al más cercano\nTiempo de vecinos\nTiempo de proyección"
+    "text": "Cómo se construyó\n\nUn vector por documento. La media de los vectores de sus fragmentos, mezclada con el vector del contexto del documento con peso 0.5: \\(\\mathbf{v} = \\mathrm{normaliza}\\big(0.5\\,\\mathbf{c} + 0.5\\,\\mathrm{normaliza}(\\overline{\\mathbf{f}})\\big)\\). Es la misma mezcla de los índices de búsqueda (ver Cómo se hizo).\nLos 15 vecinos más cercanos de cada documento, por búsqueda exacta por lotes.\nProyección UMAP a dos dimensiones sobre ese grafo de vecinos, con SimSearchManifoldLearning.jl, con inicio espectral; 100 épocas por colección y 300 en el general.\nExportación para el navegador: posiciones, título, grupo y las aristas a los 3 vecinos más cercanos.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nGrafo\nNodos\nEn el visor\nVecinos\nDistancia mediana al más cercano\nTiempo de vecinos\nTiempo de proyección"
   },
   {
     "objectID": "grafos.html#dos-cuentas",
