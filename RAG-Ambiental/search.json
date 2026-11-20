@@ -294,11 +294,32 @@
     "text": "Aprender del uso: precedente y uso por artículo\n\n\nPrevio de popularidad (control): los artículos más citados, sin mirar la consulta.\nPrecedente: se buscan los \\(K\\) = 10 documentos ya citados más parecidos y votan sus citas (\\(\\mathbb{1}[\\cdot]\\) vale 1 si \\(A\\) está entre las citas \\(G_j\\) del documento \\(j\\)):\n\\[\n\\mathrm{voto}(q,A)=\\sum_{j\\in N_K(q)} \\mathrm{sim}(q,x_j)\\;\\mathbb{1}[A\\in G_j]\n\\]\nUso agrupado: los comunicados que citan a \\(A\\) se agrupan (k-medias esférico) y cada grupo deja su centroide \\(\\boldsymbol{\\mu}_{A,g}\\) como una unidad más del artículo:\n\\[\n\\mathrm{sim}(q,A)=\\max_{g\\le k_A}\\;\\mathbf{q}^{\\top}\\boldsymbol{\\mu}_{A,g}\n\\]\ncon \\(k_A=\\min\\!\\big(16,\\ \\max(2,\\ \\mathrm{round}(n_A/8))\\big)\\) grupos (uno solo si \\(n_A&lt;4\\)).\n\n\n\n\n\n\n\n\nG\n\n\nQ\n\nHechos (consulta)\n\n\n\nNn\n\nBúsqueda en normas\ntexto del artículo\n\n\n\nQ-&gt;Nn\n\n\n\n\n\nU\n\nBúsqueda en el uso\ngrupos de comunicados que\ncitaron cada artículo\n\n\n\nQ-&gt;U\n\n\n\n\n\nF\n\nFusión RRF\n\n\n\nNn-&gt;F\n\n\n\n\n\nU-&gt;F\n\n\n\n\n\nA\n\nArtículos\n\n\n\nF-&gt;A\n\n\n\n\n\n\n\n\n\n\nSin fuga: se aprende de los 981 comunicados anteriores al 3 de marzo de 2019 y se mide con los 421 posteriores."
   },
   {
+    "objectID": "presentacion/2026-11-20/index.html#precedente-con-un-ejemplo-real",
+    "href": "presentacion/2026-11-20/index.html#precedente-con-un-ejemplo-real",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "Precedente, con un ejemplo real",
+    "text": "Precedente, con un ejemplo real\n\n\n\n\n\n\n\nG\n\n\nQ\n\nConsulta (2026)\n«Asegura Profepa 19 ejemplares\nde psitácidos en Tabasco»\n\n\n\nV1\n\nAsegura dos ejemplares de psitácidos\nen la ciudad de Querétaro (2017)\n\n\n\nQ-&gt;V1\n\n\n0.82\n\n\n\nV2\n\nAseguran 387 ejemplares\nde fauna silvestre (2018)\n\n\n\nQ-&gt;V2\n\n\n0.81\n\n\n\nV3\n\nRescata 99 psitácidos\nen Chilpancingo (2017)\n\n\n\nQ-&gt;V3\n\n\n0.80\n\n\n\nV4\n\nAsegura 5 psitácidos en la\nferia de San Isidro (2017)\n\n\n\nQ-&gt;V4\n\n\n0.79\n\n\n\nV5\n\nAsegura dos loros cachetes\namarillos en Huimanguillo (2018)\n\n\n\nQ-&gt;V5\n\n\n0.78\n\n\n\nV6\n\n… y 5 comunicados más\n\n\n\nQ-&gt;V6\n\n\n0.77\n\n\n\nA1\n\nCPF 420 · delito, fauna silvestre\n7 votos, suma 5.51 → 1.º\n\n\n\nV1-&gt;A1\n\n\n\n\n\nV2-&gt;A1\n\n\n\n\n\nA3\n\nLGVS 51, 114 y 119\n1 voto cada uno, 0.77 a 0.81\n\n\n\nV2-&gt;A3\n\n\n\n\n\nV3-&gt;A1\n\n\n\n\n\nA2\n\nLGVS 60 Bis 2 · psitácidos\n3 votos, suma 2.37 → 2.º\n\n\n\nV3-&gt;A2\n\n\n\n\n\nV4-&gt;A2\n\n\n\n\n\nV5-&gt;A2\n\n\n\n\n\nV6-&gt;A1\n\n\n×4\n\n\n\nV6-&gt;A3\n\n\n×2\n\n\n\nA4\n\nLGVS 123 · sanciones\nningún vecino lo citó: 0 votos\n\n\n\n\n\n\n\n\n\n\nEl comunicado citó CPF 420 y LGVS 123. Cada vecino vota por los artículos que él citó, con peso igual a su similitud con la consulta (el número de la flecha).\nEl 420 gana con holgura: es el fundamento habitual de estos casos. El 123 no puede salir, porque ningún vecino lo citó. El precedente acierta lo que se repite y es ciego a lo raro.\n\n\nEjemplo de la partición temporal: comunicado de 2026, vecinos de antes de marzo de 2019. Se muestran 5 de los 10 vecinos; los votos son de los 10."
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#uso-agrupado-con-un-ejemplo-real-lgeepa-170",
+    "href": "presentacion/2026-11-20/index.html#uso-agrupado-con-un-ejemplo-real-lgeepa-170",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "Uso agrupado, con un ejemplo real: LGEEPA 170",
+    "text": "Uso agrupado, con un ejemplo real: LGEEPA 170\n\n\n\n\n\n\n\nG\n\n\nA\n\nLGEEPA 170\nmedidas de seguridad\n(clausura, aseguramiento)\n300 comunicados lo citan\n→ 16 grupos\n\n\n\nG1\n\nObras sin autorización de impacto\nambiental en áreas protegidas · 45\n\n\n\nA-&gt;G1\n\n\n\n\n\nG2\n\nCambio de uso de suelo\nen terrenos forestales · 38\n\n\n\nA-&gt;G2\n\n\n\n\n\nG3\n\nAseguramiento de madera · 33\n\n\n\nA-&gt;G3\n\n\n\n\n\nG4\n\nExtracción de materiales pétreos · 29\n\n\n\nA-&gt;G4\n\n\n\n\n\nG5\n\nRelleno de humedales · 22\n\n\n\nA-&gt;G5\n\n\n\n\n\nG6\n\nMal manejo de residuos peligrosos · 16\n\n\n\nA-&gt;G6\n\n\n\n\n\nG7\n\n… y 10 grupos más\n\n\n\nA-&gt;G7\n\n\n\n\n\nQ\n\nConsulta (2020)\n«Asegura Profepa 87.8 m³ de\nmadera y 88.4 toneladas de\ncarbón vegetal en Campeche»\n\n\n\nG1-&gt;Q\n\n\n0.57\n\n\n\nG2-&gt;Q\n\n\n0.64\n\n\n\nG3-&gt;Q\n\n\n0.88\n\n\n\nG4-&gt;Q\n\n\n0.64\n\n\n\nG5-&gt;Q\n\n\n0.57\n\n\n\nG6-&gt;Q\n\n\n0.61\n\n\n\n\n\n\n\n\n\n\nCada grupo deja un vector: el promedio de sus comunicados. La consulta se compara con los 16 y el artículo se queda con el mejor: 0.88, el grupo de madera.\nCon un solo vector para todo el 170 (el promedio de los 300) la similitud baja a 0.68: clausuras de obras, humedales y residuos diluyen el caso de la madera.\n\n\nGrupos reales (k-medias esférico sobre los comunicados anteriores al corte); el número es cuántos comunicados tiene cada uno. Los nombres de los grupos son un resumen nuestro de su caso tipo generado."
+  },
+  {
     "objectID": "presentacion/2026-11-20/index.html#agrupado-el-uso-iguala-al-precedente-con-266-vectores",
     "href": "presentacion/2026-11-20/index.html#agrupado-el-uso-iguala-al-precedente-con-266-vectores",
     "title": "Recuperación de normas ambientales para RAG",
     "section": "Agrupado, el uso iguala al precedente con 266 vectores",
     "text": "Agrupado, el uso iguala al precedente con 266 vectores\n\n\nUn solo vector por artículo no alcanza: el 170 se usa para residuos peligrosos, tala y obras sin autorización, y el promedio las borra. Tiene que ser por grupo.\nEl previo solo ya da 0.59: buena parte de lo que se acierta es la cita de cajón. Por eso el control va siempre al lado.\n\n\nPLAN 2.27. Con pregunta ciudadana: base 0.19, precedente 0.67, uso agrupado 0.67."
+  },
+  {
+    "objectID": "presentacion/2026-11-20/index.html#frecuentes-cola-y-raras-las-citas-tienen-cola-larga",
+    "href": "presentacion/2026-11-20/index.html#frecuentes-cola-y-raras-las-citas-tienen-cola-larga",
+    "title": "Recuperación de normas ambientales para RAG",
+    "section": "Frecuentes, cola y raras: las citas tienen cola larga",
+    "text": "Frecuentes, cola y raras: las citas tienen cola larga\n\n\nDistribución de cola larga: 1,402 comunicados citan 208 artículos distintos, pero 10 de ellos se llevan el 69 % de las 1,983 citas.\nFrecuentes: esos 10 artículos. Cola: los otros 198. Raras: los 143 de la cola citados sólo 1 o 2 veces (100, una sola vez).\nEn comunicados: 1,059 tienen alguna referencia frecuente, 343 sólo de cola y 130 alguna rara.\n\n\nUn promedio global lo decide lo frecuente; por eso cada tramo se reporta aparte."
   },
   {
     "objectID": "presentacion/2026-11-20/index.html#lo-frecuente-se-aprende-la-cola-necesita-las-dos-búsquedas",
@@ -375,7 +396,7 @@
     "href": "presentacion/index.html",
     "title": "Presentaciones",
     "section": "",
-    "text": "Cada presentación se publica con su fecha y no se modifica después; una versión nueva sale con fecha nueva.\n\n\n\nFecha\nPresentación\nPara quién\n\n\n\n\n20 de noviembre de 2026\nRecuperación de normas ambientales para RAG: dónde vamos, qué sirve, qué no sirvió y a dónde se puede llegar\nColegas del equipo; 39 diapositivas\n\n\n\n\nSe avanza con las flechas del teclado o con la barra espaciadora; la tecla o muestra todas las diapositivas."
+    "text": "Cada presentación se publica con su fecha y no se modifica después; una versión nueva sale con fecha nueva.\n\n\n\nFecha\nPresentación\nPara quién\n\n\n\n\n20 de noviembre de 2026\nRecuperación de normas ambientales para RAG: dónde vamos, qué sirve, qué no sirvió y a dónde se puede llegar\nColegas del equipo; 42 diapositivas\n\n\n\n\nSe avanza con las flechas del teclado o con la barra espaciadora; la tecla o muestra todas las diapositivas."
   },
   {
     "objectID": "index.html",
