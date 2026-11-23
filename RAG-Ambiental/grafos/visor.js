@@ -162,6 +162,15 @@
     return mejor;
   }
 
+  // Dirección de la fuente original del nodo: G.u[i] es "<índice en G.ligas>:<resto>" (grafo/exporta.py).
+  function fuente(i) {
+    const u = G && G.u && G.u[i];
+    if (!u) return null;
+    const c = u.indexOf(":");
+    const url = G.ligas[+u.slice(0, c)] + u.slice(c + 1);
+    return /^https?:\/\//.test(url) ? url : null;
+  }
+
   function fila(i, alElegir) {
     const b = el("button", "visor-fila");
     b.type = "button";
@@ -171,7 +180,15 @@
     b.addEventListener("click", () => alElegir(i));
     b.addEventListener("mouseenter", () => { encima = i; pinta(); });
     b.addEventListener("mouseleave", () => { encima = -1; pinta(); });
-    return b;
+    const url = fuente(i);
+    if (!url) return b;
+    const r = el("div", "visor-renglon");           // el título elige el nodo; la flecha abre su fuente
+    const a = el("a", "visor-liga", "↗");
+    a.href = url; a.target = "_blank"; a.rel = "noopener noreferrer";
+    a.title = "Abrir la fuente original (" + new URL(url).hostname.replace(/^www\./, "") + ")";
+    a.setAttribute("aria-label", a.title);
+    r.append(b, a);
+    return r;
   }
 
   function elige(i) {
@@ -180,6 +197,12 @@
     if (i >= 0) {
       detalle.append(el("h4", null, G.t[i] || "(sin título)"));
       detalle.append(el("p", "visor-id", G.id[i] + " · " + G.grupos[G.g[i]].nombre));
+      const url = fuente(i);
+      if (url) {
+        const a = el("a", "visor-fuente", "Abrir la fuente original (" + new URL(url).hostname.replace(/^www\./, "") + ") ↗");
+        a.href = url; a.target = "_blank"; a.rel = "noopener noreferrer";
+        detalle.append(a);
+      }
       if (G.vec[i].length) {
         detalle.append(el("p", "visor-sub", "Vecinos más cercanos" + (G.muestra ? " (entre los nodos de la muestra)" : "")));
         for (const v of G.vec[i]) detalle.append(fila(v, elige));
@@ -252,6 +275,12 @@
   canvas.addEventListener("click", (ev) => {
     const r = canvas.getBoundingClientRect();
     elige(cercano(ev.clientX - r.left, ev.clientY - r.top));
+  });
+  canvas.addEventListener("dblclick", (ev) => {        // doble clic sobre un nodo: abre su fuente
+    const r = canvas.getBoundingClientRect();
+    const i = cercano(ev.clientX - r.left, ev.clientY - r.top);
+    const url = i >= 0 && fuente(i);
+    if (url) window.open(url, "_blank", "noopener");
   });
   reinicia.addEventListener("click", () => d3.select(canvas).transition().duration(300).call(zoom.transform, d3.zoomIdentity));
   busca.addEventListener("input", buscar);

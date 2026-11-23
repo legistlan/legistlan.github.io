@@ -396,7 +396,7 @@
     "href": "grafos.html",
     "title": "Grafo semántico",
     "section": "",
-    "text": "Un mapa de los documentos de cada colección, y de todas juntas, y otro de las consultas del benchmark sintético. Cada punto es un documento (o una consulta); dos puntos quedan cerca si sus vectores se parecen. Se puede acercar con la rueda, arrastrar, pasar el cursor para ver el título y hacer clic en un punto para ver sus vecinos más cercanos.\nAbrir directamente: general · normas del benchmark · consultas del benchmark sintético · los demás, en el selector."
+    "text": "Un mapa de los documentos de cada colección, y de todas juntas, y otro de las consultas del benchmark sintético. Cada punto es un documento (o una consulta); dos puntos quedan cerca si sus vectores se parecen. Se puede acercar con la rueda, arrastrar, pasar el cursor para ver el título y hacer clic en un punto para ver sus vecinos más cercanos y el enlace a su fuente original (el Semanario Judicial, el ordenamiento en la SCJN, la página del comunicado o la ficha del artículo en OpenAlex). Cada vecino de la lista, y cada resultado de la búsqueda, trae una flecha (↗) que abre su fuente; con doble clic sobre un punto se abre la suya directamente.\nAbrir directamente: general · normas del benchmark · consultas del benchmark sintético · los demás, en el selector."
   },
   {
     "objectID": "grafos.html#cómo-leerlo",
